@@ -4,6 +4,8 @@ import Logo from "./Logo";
 import { BrowserRouter, Route, Link } from "react-router-dom";
 
 import MyProfile from "./MyProfile";
+import Profile from "./Profile";
+
 import ProfilePic from "./ProfilePic";
 import ProfilePicUpload from "./ProfilePicUpload";
 
@@ -66,19 +68,22 @@ export default class App extends React.Component {
                 />
 
                 <BrowserRouter>
-                    <Route
-                        exact
-                        path="/"
-                        render={() => (
-                            <MyProfile
-                                firstName={this.state.firstName}
-                                lastName={this.state.lastName}
-                                profilePic={this.state.profilePic}
-                                bio={this.state.bio}
-                                setBio={this.setBio}
-                            />
-                        )}
-                    />
+                    <div>
+                        <Route
+                            exact
+                            path="/"
+                            render={() => (
+                                <MyProfile
+                                    firstName={this.state.firstName}
+                                    lastName={this.state.lastName}
+                                    profilePic={this.state.profilePic}
+                                    bio={this.state.bio}
+                                    setBio={this.setBio}
+                                />
+                            )}
+                        />
+                        <Route path="/user/:id" component={Profile} />
+                    </div>
                 </BrowserRouter>
                 {this.state.showUploader && (
                     <ProfilePicUpload setImage={this.setImage} />

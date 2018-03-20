@@ -148,7 +148,8 @@ export default class UsersForm extends React.Component {
                         Register
                     </button>
                     <p>
-                        Already registered? <Link to="/login">Log in!</Link>
+                        Already registered?<br />
+                        <Link to="/login">Log in!</Link>
                     </p>
                 </form>
             </div>

@@ -5,7 +5,8 @@ export default class ProfilePicUpload extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            file: ""
+            file: "",
+            label: "Choose a file"
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -13,7 +14,8 @@ export default class ProfilePicUpload extends React.Component {
 
     handleChange(e) {
         this.setState({
-            [e.target.name]: e.target.files[0] //this is ES6
+            [e.target.name]: e.target.files[0], //this is ES6
+            label: e.target.files[0].name.slice(0, 10) + "..."
         });
     }
 
@@ -21,10 +23,11 @@ export default class ProfilePicUpload extends React.Component {
         e.preventDefault();
         const formData = new FormData();
         formData.append("file", this.state.file);
+        console.log("Doing a post upload");
         axios
             .post("/upload", formData)
             .then(results => {
-                console.log("Rsults from server:", results);
+                console.log("Results from server:", results);
                 this.props.setImage(results.data.image);
             })
             .catch(err => console.log(err));
@@ -34,13 +37,22 @@ export default class ProfilePicUpload extends React.Component {
         return (
             <div id="pic-uploader">
                 <form>
+                    <label htmlFor="file">
+                        <a>{this.state.label}</a>
+                    </label>
                     <input
                         onChange={this.handleChange}
                         name="file"
                         type="file"
                         id="file"
                     />
-                    <button onClick={this.handleSubmit}> Submit</button>
+                    <button
+                        disabled={!this.state.file}
+                        className="btn btn-upload"
+                        onClick={this.handleSubmit}
+                    >
+                        Submit
+                    </button>
                 </form>
             </div>
         );

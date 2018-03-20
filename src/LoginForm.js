@@ -97,13 +97,6 @@ export default class UsersForm extends React.Component {
         console.log(msg);
         return (
             <div className="login-form">
-                {msg ? <p className="error">{msg}</p> : null}
-                <div className="validation-msg">
-                    {!this.state.formValid && (
-                        <FormErrors formErrors={this.state.formErrors} />
-                    )}
-                </div>
-
                 <form>
                     <input
                         onChange={this.handleChange}
@@ -128,8 +121,15 @@ export default class UsersForm extends React.Component {
                     >
                         Log in
                     </button>
+                    {msg ? <p className="error">{msg}</p> : null}
+                    <div className="validation-msg">
+                        {!this.state.formValid && (
+                            <FormErrors formErrors={this.state.formErrors} />
+                        )}
+                    </div>
                     <p>
                         Not registered yet?
+                        <br />
                         <Link to="/">Register!</Link>
                     </p>
                 </form>

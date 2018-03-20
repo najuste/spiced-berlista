@@ -3,7 +3,7 @@ import ProfilePic from "./ProfilePic";
 import { Link } from "react-router-dom";
 import axios from "./axios";
 
-export default class Profile extends React.Component {
+export default class MyProfile extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -44,7 +44,7 @@ export default class Profile extends React.Component {
     }
 
     render() {
-        console.log(this.state);
+        //console.log(this.state);
         return (
             <div id="profile-section">
                 <ProfilePic
@@ -54,15 +54,16 @@ export default class Profile extends React.Component {
                 />
                 {!this.state.showBio && (
                     <p id="bio-text">
-                        // FIXME: STILL NEEDS TTO BE FIXED
                         {this.props.bio ? (
-                            this.props.bio +
-                            <a onClick={this.showBioToggle}>"Edit"</a>
+                            this.props.bio
                         ) : (
                             <a onClick={this.showBioToggle}>
                                 "You haven't shared any hobbies with us yet"
                             </a>
                         )}
+                        {this.props.bio ? (
+                            <a onClick={this.showBioToggle}> Edit</a>
+                        ) : null}
                     </p>
                 )}
                 {this.state.showBio && (
@@ -89,3 +90,4 @@ export default class Profile extends React.Component {
         );
     }
 }
+// FIXME: STILL NEEDS TO BE FIXED this.props.bio rendering

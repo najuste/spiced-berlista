@@ -1,5 +1,5 @@
 html {
-    font-family: monospace;
+    font-family: Monaco, monospace;
     height: 100vh;
     background-color: #222222;
     background: repeating-linear-gradient(
@@ -10,17 +10,13 @@ html {
             #222222 50%
         )
         0 / 15px 15px;
-    /* background-image: radial-gradient(
-        circle at center,
-        rgba(0, 188, 212, 0.25),
-        rgba(0, 255, 255, 0)
-    ); */
 }
 
 header > img {
     position: fixed;
     top: -3%;
     width: 100%;
+    min-width: 600px;
     -webkit-transform: rotate(180deg);
     -moz-transform: rotate(180deg);
     -o-transform: rotate(180deg);
@@ -39,13 +35,19 @@ p {
 }
 
 a {
+    color: rgba(0, 188, 212, 0.6);
+    cursor: pointer;
+}
+
+a:hover {
     color: #00bcd4;
 }
 
 main {
-    margin: 9vh auto 0;
-    max-height: inherit;
+    margin: 2em auto;
+    height: 100vh;
 }
+
 #welcome-wrapper {
     height: 90vh;
     overflow: hidden;
@@ -53,15 +55,16 @@ main {
 }
 
 #welcome {
-    position: relative;
+    display: flex;
+    flex-flow: column;
     color: #00bcd4;
     padding: 10vh;
-    width: 70vh;
-    height: 70vh;
     border-radius: 50%;
     margin: auto;
     text-align: center;
 }
+
+/* --------------LOGO */
 
 #berlin {
     font-family: Monoton;
@@ -69,9 +72,12 @@ main {
     margin: auto;
     letter-spacing: 1vw;
     font-size: 7em;
-    -webkit-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    transition: all 0.5s;
+    -webkit-transition: all 1s;
+    -moz-transition: all 1s;
+    transition: all 1s;
+}
+
+#welcome #berlin {
     -webkit-animation: neon 1.5s ease-in-out infinite alternate;
     -moz-animation: neon 1.5s ease-in-out infinite alternate;
     animation: neon 1.5s ease-in-out infinite alternate;
@@ -82,39 +88,29 @@ main {
     -moz-animation: none;
     animation: none;
 }
-/* @-webkit-keyframes neon {
+@-webkit-keyframes neon {
     0% {
         text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #2196f3,
             0 0 30px #2196f3, 0 0 50px #2196f3, 0 0 60px #2196f3,
             0 0 80px #2196f3, 0 0 100px #2196f3;
     }
-    to {
-        text-shadow: 0 0 0 #fff, 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #ff1177,
-            0 0 25px #ff1177, 0 0 30px #ff1177, 0 0 40px #ff1177,
-            0 0 50px #ff1177;
+    100% {
+        text-shadow: 0 0 5px #2196f3, 0 0 10px rgba(255, 212, 42, 0.5),
+            0 0 10px rgb(255, 212, 42), 0 0 20px #2196f3, 0 0 30px #2196f3,
+            0 0 40px #2196f3, 0 0 50px #2196f3, 0 0 60px #2196f3;
     }
-}*/
+}
 
 #form {
     margin: 1em auto;
-    width: 200px;
     padding: 2em;
-    /* background-color: rgba(255, 153, 0, 0.6); */
 }
 
-.formErrors {
-    position: absolute;
-    right: 10%;
-    width: 25%;
-    min-height: 20px;
-    padding: 5px;
-    margin: 5px;
-    border-radius: 20px;
-}
-
-.formErrors p {
-    color: white;
+.formErrors > p {
+    font-size: 0.9em;
+    color: rgba(250, 250, 250, 0.8);
     margin: 0;
+    padding: 0.1em;
 }
 
 form > input {
@@ -123,9 +119,10 @@ form > input {
     margin: 0.5em auto;
     font-size: 1em;
     border-radius: 4px;
+    background-color: rgba(250, 250, 250, 0.8);
 }
 ::placeholder {
-    color: #00bcd4;
+    color: #007888;
 }
 ::placeholder:active {
     color: rgb(255, 212, 42);
@@ -138,19 +135,22 @@ form > button {
     margin: 5px auto;
 }
 
+/* ------------- LOGGED IN USER  */
 #loggedin {
     position: relative;
-    margin-top: 5em;
     height: inherit;
 }
 .logo-image {
     position: absolute;
     left: 3em;
     display: inline-block;
+    font-size: 0.8em;
 }
-.logo-image > h1 {
+.logo-image h1 {
     margin: 0 1em;
 }
+
+/* ------------- WTF?  */
 p.error {
     color: rgb(255, 212, 42);
     font-style: italic;
@@ -175,8 +175,8 @@ p.error {
 }
 .userpic-wrapper {
     position: absolute;
-    padding: 30px;
-    right: 3em;
+    padding: 2em;
+    right: 0;
 }
 
 .userpic:hover {
@@ -184,22 +184,60 @@ p.error {
     cursor: pointer;
     box-shadow: 0 0 1em rgba(250, 250, 250, 0.5);
 }
+
 #pic-uploader {
-    position: relative;
-    width: 200px;
+    text-align: center;
+    background-color: rgba(43, 43, 43, 0.8);
+    width: 114px;
+    height: 75px;
+    padding-top: 1em;
+    padding-bottom: 0.5em;
     position: absolute;
-    top: 8em;
-    left: 5em;
+    top: 2em;
+    right: 1em;
+    border-radius: 25px;
+}
+
+/* #pic-uploader input {
+    margin: 5px;
+    font-size: 15px;
+    height: 20px;
+} */
+
+#pic-uploader input#file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+input#file + label {
+    padding: 5px 10px;
+    font-weight: 700;
+    height: 40px;
+    width: 80px;
+    border-radius: 20px;
+    /* font-size: 1em; */
+    /* display: inline-block; */
+}
+
+input#file:focus + label,
+input#file + label:hover {
+    cursor: pointer;
+    color: #0049ab;
+    box-shadow: 0 0 2px grey;
 }
 
 .btn {
-    background-color: #00bcd4;
+    background-color: rgba(0, 188, 212, 0.6);
     border-radius: 1em;
     font-size: 1em;
     color: rgb(250, 250, 250);
 }
 .btn:hover {
-    background-color: rgba(0, 188, 212, 0.6);
+    background-color: #00bcd4;
     cursor: pointer;
 }
 
@@ -207,9 +245,12 @@ p.error {
 
 #profile-section {
     position: relative;
-    top: 160px;
+    top: 9em;
     margin: 0 2em;
     border-top: 5px double rgba(0, 188, 212, 0.4);
+    display: flex;
+    justify-content: center;
+    flex-flow: column;
 }
 
 #profile-section .userpic:hover {
@@ -232,16 +273,16 @@ p.error {
 #profile-section .userpic-wrapper {
     position: relative;
     display: inline-block;
-
-    left: 1em;
+    padding-top: 3em;
+    margin: auto;
 }
 
 #profile-section .userpic {
-    width: 100px;
-    height: 100px;
+    width: 20em;
+    height: 20em;
     border: none;
     border-radius: 25% 25% 0 25%;
-    box-shadow: 0 0 2em #222222;
+    box-shadow: 0 0.2em 4em;
 }
 
 #profile-section .userpic:hover {
@@ -250,7 +291,24 @@ p.error {
 }
 
 #profile-section p#bio-text {
-    top: 1em;
-    display: inline;
-    position: absolute;
+    position: relative;
+    text-align: center;
+}
+
+.btn-friends {
+    position: relative;
+    margin: auto;
+}
+
+:disabled {
+    background: rgba(43, 43, 43, 0.8);
+    cursor: default;
+}
+:disabled:hover {
+    background: rgba(43, 43, 43, 0.8);
+    cursor: default;
+}
+
+:focus {
+    outline: none;
 }

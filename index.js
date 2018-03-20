@@ -15,7 +15,7 @@ app.use(
         secret:
             process.env.SESSION_SECRET ||
             require("./secrets.json").cookieSecret,
-        maxAge: 1000 * 60 * 10
+        maxAge: 1000 * 60 * 60
         // maxAge: 1000 * 60 * 60 * 24 * 14
     })
 );
@@ -103,8 +103,7 @@ app.post("/register", function(req, res) {
                 console.log(err, "Same email");
                 res.json({
                     success: false,
-                    errorMsg:
-                        "User with an email you just typed in already registered"
+                    errorMsg: "User with such email already registered"
                 });
             } else {
                 console.log(err, "Undefined error occured, please try again");
@@ -117,13 +116,12 @@ app.post("/register", function(req, res) {
 });
 
 app.post("/login", function(req, res) {
-    console.log("Route /login", req.body);
     const { email, password } = req.body;
-    console.log("Loggin route /login", req.body);
+    console.log("Loggin route /login");
     return db
         .getDataByEmail(email)
         .then(results => {
-            console.log("results from getDataByEmail", results.rows);
+            console.log("results from getDataByEmail");
             if (!results.rows.length) {
                 console.log("The email has not been registered yet");
                 res.json({
@@ -145,9 +143,10 @@ app.post("/login", function(req, res) {
                         } else {
                             //matching password ! setting cookies
                             let cookies = results.rows[0];
-                            cookies.profilepic =
-                                config.s3Url + cookies.profilepic;
-
+                            if (cookies.profilepic) {
+                                cookies.profilepic =
+                                    config.s3Url + cookies.profilepic;
+                            }
                             console.log("Logged in cookies:", cookies);
 
                             req.session = {
@@ -166,20 +165,76 @@ app.post("/login", function(req, res) {
 
 //--- GETTING USER DATA
 
+//--- ---- from COOKIES
+
 app.get("/user", function(req, res) {
     console.log(req.session.loggedin);
-
     if (req.session.loggedin) {
         //i have all data from cookies, no db request shall be made
         res.json({ user: req.session.loggedin });
     } else {
         console.log("there is a problem, user is not logged in...");
-        res.redirect("/welcome");
+        //testing purposes when cookies  are short term
+        delete res.session.loggedin;
     }
 });
 
+//--- ---- from db getting data about user from both tables
+
+app.get("/get-user-info/:id", function(req, res) {
+    let loggedin_id = req.session.loggedin.id;
+    console.log("Session id", req.session.loggedin, req.params);
+    if (loggedin_id == req.params.id) {
+        console.log("same user as requested profile");
+        res.json({ user: "same" });
+    } else {
+        return db
+            .getDataById(req.params.id)
+            .then(results => {
+                if (results.rows.length) {
+                    console.log("Got other user:", results.rows);
+                    let user = results.rows[0];
+                    delete user["password"];
+                    if (user.profilepic) {
+                        user.profilepic = config.s3Url + user.profilepic;
+                    }
+                    console.log("Friendship state with:", req.params.id);
+                    return db
+                        .getFriendshipStatus(loggedin_id, req.params.id)
+                        .then(friendsResults => {
+                            console.log("Friendships:", friendsResults.rows);
+                            if (friendsResults.rows.length) {
+                                let friendship = friendsResults.rows[0];
+                                //
+                                user.status = friendship["status"];
+                                user.sender_id = friendship["sender_id"];
+                                user.recipient_id = friendship["recipient_id"];
+                            } else {
+                                user.status = 0;
+                            }
+                            res.json({ user });
+                        })
+                        .catch(err => console.log(err));
+                } else {
+                    res.json({ user: "none" });
+                }
+            })
+            .catch(err => console.log("Error fetching data".err));
+        //do query
+    }
+    // if (req.session.loggedin) {
+    //     //i have all data from cookies, no db request shall be made
+    //     res.json({ user: req.session.loggedin });
+    // } else {
+    //     console.log("there is a problem, user is not logged in...");
+    //     res.redirect("/welcome");
+    // }
+});
+
 //--- uploading the user img
-app.post("/upload", uploader.single("profilepic"), s3.upload, (req, res) => {
+//uploader.single("file") //file must be the same var as in FORM name(!)
+app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
+    console.log("Route /upload");
     if (req.file) {
         console.log("Successfull upload", req.file.filename);
         return db
@@ -211,7 +266,7 @@ app.post("/bio", function(req, res) {
         return db
             .addBio(req.body.bio, req.session.loggedin.id)
             .then(results => {
-                console.log("Results from addBio", results);
+                console.log("Results from addBio");
                 res.json({
                     success: true
                 });
@@ -225,6 +280,62 @@ app.post("/bio", function(req, res) {
 
     //update cookies!
 });
+
+//---- FRIENDSHIP UPDATES
+
+app.post("/sendFriendshipRequest", function(req, res) {
+    console.log("In route", req.body.id, req.body.status);
+    return db
+        .sendFriendshipRequest(
+            req.session.loggedin.id,
+            req.body.id,
+            req.body.status
+        )
+        .then(results => {
+            console.log(results.rows);
+            res.json({
+                status: 1,
+                senderId: results.rows[0].sender_id,
+                recipientId: results.rows[0].recipient_id
+            });
+        })
+        .catch(err => console.log("Error send friend req:", err));
+});
+
+app.post("/updateFriendshipRequest", function(req, res) {
+    console.log("In route", req.body.id, req.body.status);
+    return db
+        .updateFriendshipRequest(
+            req.session.loggedin.id,
+            req.body.id,
+            req.body.status
+        )
+        .then(results => {
+            console.log("Updating friendship:", results.rows[0], "status");
+            res.json({
+                status: results.rows[0].status,
+                senderId: results.rows[0].sender_id,
+                recipientId: results.rows[0].recipient_id
+            });
+        })
+        .catch(err => console.log("Error update friend req:", err));
+});
+
+// app.post("/updateFriendshipRequest", function(req, res) {
+//     console.log("In route", req.body.id, req.body.status);
+//     return db
+//         .cancelFriendshipRequest(
+//             req.session.loggedin.id,
+//             req.body.id,
+//             req.body.status
+//         )
+//         .then(results => {
+//             console.log(results.rows);
+//             res.json({ status: 0 }); //canceled
+//         })
+//         .catch(err => console.log(err));
+// });
+//--- UNLOGGED EXPERIENCE
 
 app.get("/welcome", function(req, res) {
     if (req.session.loggedin) {
