@@ -15,8 +15,8 @@ app.use(
         secret:
             process.env.SESSION_SECRET ||
             require("./secrets.json").cookieSecret,
-        maxAge: 1000 * 60 * 60
-        // maxAge: 1000 * 60 * 60 * 24 * 14
+
+        maxAge: 1000 * 60 * 60 * 24 * 14
     })
 );
 
@@ -321,20 +321,28 @@ app.post("/updateFriendshipRequest", function(req, res) {
         .catch(err => console.log("Error update friend req:", err));
 });
 
-// app.post("/updateFriendshipRequest", function(req, res) {
-//     console.log("In route", req.body.id, req.body.status);
-//     return db
-//         .cancelFriendshipRequest(
-//             req.session.loggedin.id,
-//             req.body.id,
-//             req.body.status
-//         )
-//         .then(results => {
-//             console.log(results.rows);
-//             res.json({ status: 0 }); //canceled
-//         })
-//         .catch(err => console.log(err));
-// });
+app.get("/friendsAndWannabes", function(req, res) {
+    console.log("In route get all friends and wanabees");
+    return db
+        .getfriendsAndWannabes(req.session.loggedin.id)
+        .then(results => {
+            console.log("Getting all friends and wannabes", results.rows);
+
+            let users = results.rows;
+            users.map(user => {
+                if (user.profilepic) {
+                    user.profilepic = config.s3Url + user.profilepic;
+                }
+                // return user.profilepic
+            });
+            console.log("Got all friends and wannabes", users);
+            res.json({
+                friends: users
+            });
+        })
+        .catch(err => console.log("Error get friends and wannabes req:", err));
+});
+
 //--- UNLOGGED EXPERIENCE
 
 app.get("/welcome", function(req, res) {

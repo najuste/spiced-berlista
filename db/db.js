@@ -68,3 +68,16 @@ exports.updateFriendshipRequest = function(sender_id, recipient_id, status) {
         [status, sender_id, recipient_id]
     );
 };
+
+//  in FRIENDS.js getting a list of all friends and wanabees
+
+exports.getfriendsAndWannabes = function(user_id) {
+    const q = `
+    SELECT users.id, firstname, lastname, profilepic, status
+    FROM friendships
+    JOIN users
+    ON (status = 1 AND recipient_id = $1 AND sender_id = users.id)
+    OR (status = 2 AND recipient_id = $1 AND sender_id = users.id)
+    OR (status = 2 AND sender_id = $1 AND recipient_id = users.id)`;
+    return db.query(q, [user_id]);
+};

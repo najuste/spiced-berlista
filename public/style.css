@@ -261,6 +261,7 @@ input#file + label:hover {
 #profile-section form {
     position: relative;
     display: inline-block;
+    text-align: center;
 }
 
 #profile-section form .btn-bio {
@@ -311,4 +312,73 @@ input#file + label:hover {
 
 :focus {
     outline: none;
+}
+
+/* FRIEND SECTION */
+
+#friends-section {
+    position: relative;
+    top: 9em;
+    margin: 0 2em;
+    border-top: 5px double rgba(0, 188, 212, 0.4);
+    color: rgba(0, 188, 212, 0.8);
+}
+
+/* #friends-wrapper,
+#wannabes-wrapper {
+} */
+/*
+#friends,
+#wannabes {
+    display: flex;
+    justify-content: flex-start;
+    flex-flow: row wrap;
+} */
+
+.friend {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+    box-shadow: 0 0 2em #2b2b2b;
+}
+
+.friend:hover {
+    box-shadow: 0 0 1em;
+}
+
+.friend .btn-friends {
+    position: relative;
+    margin: auto 0.2em;
+}
+
+.friend .btn-reject {
+    background-color: rgba(0, 188, 212, 0.4);
+}
+
+.friend .btn-reject:hover {
+    background-color: rgba(0, 188, 212, 0.7);
+}
+
+.friend .userpic-wrapper {
+    position: relative;
+    text-align: center;
+    padding: 1em;
+}
+
+.friend .userpic {
+    width: 8em;
+    height: 8em;
+    border: none;
+    border-radius: 25%;
+    box-shadow: 0 0 1em black;
+}
+
+.friend .userpic-wrapper:hover {
+    border: none;
+    cursor: default;
+}
+
+.friend p {
+    font-style: italic;
+    text-transform: uppercase;
 }

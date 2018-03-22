@@ -9,6 +9,8 @@ import Profile from "./Profile";
 import ProfilePic from "./ProfilePic";
 import ProfilePicUpload from "./ProfilePicUpload";
 
+import Friends from "./Friends";
+
 export default class App extends React.Component {
     constructor(props) {
         super(props);
@@ -36,7 +38,7 @@ export default class App extends React.Component {
     }
     componentDidMount() {
         axios.get("/user").then(results => {
-            console.log("Getting all from cookies(!)", results.data.user);
+            console.log("Getting data from cookies(!)");
 
             this.setState({
                 id: results.data.user.id,
@@ -83,6 +85,7 @@ export default class App extends React.Component {
                             )}
                         />
                         <Route path="/user/:id" component={Profile} />
+                        <Route path="/friends" component={Friends} />
                     </div>
                 </BrowserRouter>
                 {this.state.showUploader && (

@@ -75,11 +75,6 @@ export default class Profile extends React.Component {
         } else {
             if (status === 1) {
                 //pending
-                console.log(
-                    "about to do the weird thing",
-                    this.state.id,
-                    this.state.recipientId
-                );
                 if (this.state.id == this.state.recipientId) {
                     this.friendshipUpdateFun("/updateFriendshipRequest", 5, id); //cancel
                 } else {
