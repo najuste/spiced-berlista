@@ -2,18 +2,36 @@ import axios from "./axios";
 
 export function getFriendsAndNot() {
     return axios.get("/friendsAndWannabes").then(function({ data }) {
+        console.log(data);
         return {
             type: "GET_FRIENDS_WANNABES",
-            users: data.friends // var from json what I am returning
+            users: data.users // var from json what I am returning
+        };
+    });
+}
+
+export function getUsersByString(searchString) {
+    return axios.get(`/users/${searchString}`).then(function({ data }) {
+        return {
+            type: "LOOKUP_BY_STRING",
+            users: data.users
+        };
+    });
+}
+
+//for map
+export function getAllUsersLocation() {
+    return axios.get(`/userslocation`).then(function({ data }) {
+        return {
+            type: "LOOKUP_COOR",
+            users: data.users
         };
     });
 }
 
 export function updateFriendship(id, status) {
     // var accesed by index.js
-    // status= changing to status
-    // let status = 2; // accept
-    // let status = 3; //reject
+    // status= changing tostatus
     return axios
         .post("/updateFriendshipRequest", { id, status })
         .then(function() {
@@ -24,27 +42,3 @@ export function updateFriendship(id, status) {
             };
         });
 }
-// export function makeFriends(other_id) {
-//     // .post(route, { id, status })
-//     let status = 2; // accept
-//     return axios
-//         .post("/updateFriendshipRequest", { other_id, status })
-//         .then(function() {
-//             return {
-//                 type: "MAKE_FRIENDS",
-//                 id: other_id
-//             };
-//         });
-// }
-//
-// export function endFriends(other_id) {
-//     let status = 3; //reject
-//     return axios
-//         .post("/updateFriendshipRequest", { other_id, status })
-//         .then(function() {
-//             return {
-//                 type: "END_FRIENDS",
-//                 id: other_id
-//             };
-//         });
-// }

@@ -7,7 +7,9 @@ const config = require("./config");
 const s3 = require("./s3");
 
 const app = express();
-
+const server = require("http").Server(app); //server has to detect that first meet: handshake
+// const io = require("socket.io")(server, { origins: "localhost:8080" }); //listing places from where you are accepting the connections
+// so socket io is listening for connections, so it would be your actual site
 //------ SETTING COOKIES
 var cookieSession = require("cookie-session");
 app.use(
@@ -71,23 +73,32 @@ var uploader = multer({
 
 app.post("/register", function(req, res) {
     console.log("Route /register");
-    const { firstname, lastname, email, password } = req.body;
+    const { firstname, lastname, lat, lng, email, password } = req.body;
     hashPassword(password)
         .then(hash => {
             return db
-                .register(firstname, lastname, email, hash)
+                .register(firstname, lastname, email, hash, lat, lng)
                 .then(results => {
                     console.log(
                         "Got data from inserting into db, ",
                         results.rows[0]
                     );
-                    const { id, firstname, lastname, email } = results.rows[0];
+                    const {
+                        id,
+                        firstname,
+                        lastname,
+                        email,
+                        lat,
+                        lng
+                    } = results.rows[0];
 
                     req.session.loggedin = {
                         id,
                         firstname,
                         lastname,
-                        email
+                        email,
+                        lat,
+                        lng
                     };
 
                     console.log("Setting cookies", req.session.loggedin);
@@ -304,6 +315,7 @@ app.post("/sendFriendshipRequest", function(req, res) {
 
 app.post("/updateFriendshipRequest", function(req, res) {
     console.log("In route", req.body.id, req.body.status);
+    console.log();
     return db
         .updateFriendshipRequest(
             req.session.loggedin.id,
@@ -326,8 +338,7 @@ app.get("/friendsAndWannabes", function(req, res) {
     return db
         .getfriendsAndWannabes(req.session.loggedin.id)
         .then(results => {
-            console.log("Getting all friends and wannabes", results.rows);
-
+            // console.log("Getting all friends and wannabes", results.rows);
             let users = results.rows;
             users.map(user => {
                 if (user.profilepic) {
@@ -337,10 +348,34 @@ app.get("/friendsAndWannabes", function(req, res) {
             });
             console.log("Got all friends and wannabes", users);
             res.json({
-                friends: users
+                users: users
             });
         })
         .catch(err => console.log("Error get friends and wannabes req:", err));
+});
+
+app.get("/users/:str", function(req, res) {
+    //req.params.userString
+    console.log("Inside users/string", req.params.str);
+    return db
+        .getUsers(req.params.str)
+        .then(results => {
+            console.log(results.rows);
+            res.json({ users: results.rows }); // returning an array of users that can be empty
+        })
+        .catch(err => console.log("Error from getting by userString", err));
+});
+
+app.get("/userslocation", function(req, res) {
+    return db
+        .getUsersLocation()
+        .then(results => {
+            console.log(results);
+            res.json({ users: results.rows });
+        })
+        .catch(err =>
+            console.log("Error from getting all users with loc", err)
+        );
 });
 
 //--- UNLOGGED EXPERIENCE
@@ -370,9 +405,31 @@ app.get("*", function(req, res) {
     res.sendFile(__dirname + "/index.html");
 });
 
-app.listen(8080, function() {
+// SOCKETS
+// here you sould tell that thre is another server you have created
+//not app.listen, but server.listen
+server.listen(8080, function() {
     console.log("I'm listening.");
 });
+
+// io.on("connection", function(socket) {
+//     console.log(`socket with the id ${socket.id} is now connected`);
+//     // initial connection
+//
+//     //for sending a msg to client, one has to emit the event
+//     socket.emit("welcome", {
+//         message: "Welome. It is nice to see you"
+//     });
+//
+//     socket.on("thanks", function(data) {
+//         console.log(data);
+//     });
+//
+//     socket.on("disconnect", function() {
+//         // we want to know when user is disconnect
+//         console.log(`socket with the id ${socket.id} is now disconnected`);
+//     });
+// });
 
 function hashPassword(plainTextPassword) {
     return new Promise(function(resolve, reject) {

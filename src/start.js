@@ -8,6 +8,9 @@ import { createStore, applyMiddleware } from "redux";
 import reduxPromise from "redux-promise";
 import reducer from "./reducers";
 import { composeWithDevTools } from "redux-devtools-extension";
+// import * as io from "socket.io-client";
+
+// const socket = io.connect();
 
 const store = createStore(
     reducer,
@@ -15,7 +18,6 @@ const store = createStore(
 );
 
 let element;
-// ReactDOM.render(<HelloWorld />, document.querySelector("main"));
 
 //logged out user - redirecting to Welcome /or Login
 if (location.pathname === "/welcome") {
@@ -27,10 +29,12 @@ if (location.pathname === "/welcome") {
             <App />
         </Provider>
     );
+
+    // socket.on("welcome", function(data) {
+    //     console.log(data);
+    //     socket.emit("thanks", {
+    //         message: "Thank you. It is great to be here."
+    //     });
+    // });
 }
 ReactDOM.render(element, document.querySelector("main"));
-
-// function HelloWorld() {
-//     console.log("Hello from Justina");
-//     return <div>Hello, World!</div>;
-// }

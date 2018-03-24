@@ -10,10 +10,10 @@ var db = spicedPg(
 );
 
 //--- UsersForm Module uses register
-exports.register = function(firstname, lastname, email, hash) {
+exports.register = function(firstname, lastname, email, hash, lat, lng) {
     return db.query(
-        `INSERT INTO users (firstname, lastname, email, password) VALUES($1, $2, $3, $4) RETURNING *`,
-        [firstname, lastname, email, hash]
+        `INSERT INTO users (firstname, lastname, email, password, lat, lng) VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [firstname, lastname, email, hash, lat, lng]
     );
 };
 
@@ -81,3 +81,26 @@ exports.getfriendsAndWannabes = function(user_id) {
     OR (status = 2 AND sender_id = $1 AND recipient_id = users.id)`;
     return db.query(q, [user_id]);
 };
+
+// extra feature - fetching all users from the DB from user query
+
+exports.getUsersByString = function(searchString) {
+    const q = `SELECT firstname, lastname, profilepic
+    FROM users
+    WHERE lower(firstname||' '||lastname) LIKE lower($1)||'%'`;
+    // const q2 = `SELECT users.id firstname, lastname, profilepic, status
+    // FROM users JOIN friendships
+    // ON (users.id = recipient_id)
+    // OR (users.id = sender_id)
+    // WHERE lower(firstname||' '||lastname) LIKE '%'||lower($1)||'%'`;
+    return db.query(q, [searchString]);
+};
+
+exports.getUsersLocation = function() {
+    const q = `SELECT users.id firstname, lastname, profilepic, lat, lng, status
+    FROM users JOIN friendships
+    ON (users.id = sender_id)
+    OR (users.id = recipient_id)`;
+    return db.query(q);
+};
+//status - for it i should get from friendship

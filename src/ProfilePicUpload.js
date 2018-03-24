@@ -36,6 +36,9 @@ export default class ProfilePicUpload extends React.Component {
     render() {
         return (
             <div id="pic-uploader">
+                <div onClick={this.props.toggleUploader} id="close">
+                    x
+                </div>
                 <form>
                     <label htmlFor="file">
                         <a>{this.state.label}</a>

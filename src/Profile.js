@@ -25,7 +25,7 @@ export default class Profile extends React.Component {
         axios
             .get(`/get-user-info/${this.props.match.params.id}`) //UPDATE results with friendship status
             .then(results => {
-                // console.log("resuts from axios", results.data.user);
+                console.log("resuts from axios", results.data.user);
                 if (results.data.user !== "same") {
                     const {
                         id,
@@ -86,13 +86,6 @@ export default class Profile extends React.Component {
                 this.friendshipUpdateFun("/updateFriendshipRequest", 4, id); //terminate
             }
         }
-        // //|| rejected || terminated ||  ||canceled
-        // if (status == 0 || status == 3 || status == 4 || status == 5) {
-        //     this.friendshipUpdateFun("/sendFriendshipRequest", 1, id); //pending
-        //     //pending || accepted
-        // } else if (status == 1 || status == 2) {
-        //     this.friendshipUpdateFun("/updateFriendshipRequest", 0, id); //no-request
-        // }
     }
 
     friendshipUpdateFun(route, status, id) {

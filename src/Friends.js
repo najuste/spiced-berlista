@@ -1,21 +1,34 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getFriendsAndNot, updateFriendship } from "./actions";
-import MakeFriendsButton from "./MakeFriendsButton";
 
+import MakeFriendsButton from "./MakeFriendsButton";
 import ProfilePic from "./ProfilePic";
+import Profile from "./Profile";
 
 class Friends extends React.Component {
     componentDidMount() {
-        //getting the state - a list of friends and not
+        //     console.log("Location?", this.props.location);
         this.props.getFriendsAndNot();
+        console.log("getting props when mounted", this.props);
+        //getting the state - a list of friends and not
+        // if (this.props.location && this.props.location.pathname == "/friends") {
+        //     //== "/friends"
+        //     console.log("Do we have results from search?", this.props.location);
+        //     this.props.getFriendsAndNot();
+        // } else {
+        //     console.log("Got results from search", this.props);
+        //     // const { users } = this.props;
+        // }
+        // // this.props.dispatch(getFriendsAndNot());
     }
 
     render() {
         const defaultpic = "./profilepic.svg";
+
         const { friends } = this.props;
         const { wannabes } = this.props;
-        console.log("Friends:", friends);
+        // const { others } = this.props; // only search Button produces
 
         return (
             <div id="friends-section">
@@ -27,11 +40,23 @@ class Friends extends React.Component {
 
                         <div id="friends">
                             {friends.map(friend => (
-                                <div className="friend" key={friend.id}>
+                                <div
+                                    className="friend"
+                                    key={friend.id}
+                                    onClick={e => {
+                                        e.preventDefault();
+                                        <Route
+                                            path="/user/:id"
+                                            component={Profile}
+                                        />;
+                                    }}
+                                >
                                     <ProfilePic
                                         firstName={friend.firstname}
                                         lastName={friend.lastname}
-                                        profilePic={friend.profilepic}
+                                        profilePic={
+                                            friend.profilepic || defaultpic
+                                        }
                                     />
                                     <div>
                                         {friend.firstname} {friend.lastname}
@@ -63,7 +88,9 @@ class Friends extends React.Component {
                                     <ProfilePic
                                         firstName={wana.firstname}
                                         lastName={wana.lastname}
-                                        profilePic={wana.profilepic}
+                                        profilePic={
+                                            wana.profilepic || defaultpic
+                                        }
                                     />
                                     <p>
                                         {wana.firstname} {wana.lastname}
@@ -72,7 +99,7 @@ class Friends extends React.Component {
                                         className="btn btn-friends"
                                         onClick={() =>
                                             this.props.updateFriendship(
-                                                friend.id,
+                                                wana.id,
                                                 2
                                             )
                                         }
@@ -83,7 +110,7 @@ class Friends extends React.Component {
                                         className="btn btn-friends btn-reject"
                                         onClick={() =>
                                             this.props.updateFriendship(
-                                                friend.id,
+                                                wana.id,
                                                 3
                                             )
                                         }
@@ -101,12 +128,12 @@ class Friends extends React.Component {
 }
 
 function mapStateToProps(state) {
-    //console.log("state", state);
+    console.log("state", state);
     return {
         friends:
-            state.friends && state.friends.filter(friend => friend.status == 2),
+            state.users && state.users.filter(friend => friend.status == 2),
         wannabes:
-            state.friends && state.friends.filter(friend => friend.status == 1)
+            state.users && state.users.filter(friend => friend.status == 1)
     };
 }
 

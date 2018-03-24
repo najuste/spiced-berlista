@@ -10,7 +10,6 @@ export default class MakeFriendsButton extends React.Component {
 
     renderButton(status) {
         let text;
-        console.log("Status of render Button:", status);
         switch (status) {
             case 0: //no status
                 text = "Make friend request";

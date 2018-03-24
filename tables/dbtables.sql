@@ -6,6 +6,8 @@ CREATE TABLE users(
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    lat REAL,
+    lng REAL,
     profilepic VARCHAR(255),
     bio TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

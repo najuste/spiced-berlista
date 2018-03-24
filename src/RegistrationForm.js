@@ -4,6 +4,10 @@ import axios from "./axios";
 import { Link } from "react-router-dom";
 import { FormErrors } from "./FormErrors";
 
+import PlacesAutocomplete from "react-places-autocomplete";
+
+import { geocodeByAddress, getLatLng } from "react-places-autocomplete";
+
 export default class UsersForm extends React.Component {
     constructor() {
         super();
@@ -21,6 +25,7 @@ export default class UsersForm extends React.Component {
             formValid: false
         };
         this.handleChange = this.handleChange.bind(this);
+        this.handlePlaceChange = this.handlePlaceChange.bind(this);
     }
 
     handleChange(e) {
@@ -35,6 +40,13 @@ export default class UsersForm extends React.Component {
             }
         );
     }
+    handlePlaceChange(address) {
+        console.log("clicked,", address);
+        // const address = e.target.value;
+        // console.log("clicked, got value", address);
+        this.setState({ address });
+    }
+
     fieldsNotEmpty(name, value) {
         console.log("Validating fields", name, value);
         let formValidation = this.state.formErrors;
@@ -44,11 +56,11 @@ export default class UsersForm extends React.Component {
         switch (name) {
             case "firstname":
                 var valid = value.length >= 1;
-                formValidation.firstname = valid ? "" : "no name?"; //FIXME still smth wrong
+                formValidation.firstname = valid ? "" : "no name?";
                 break;
             case "lastname":
                 valid = value.length >= 1;
-                formValidation.lastname = valid ? "" : "no surname?"; //FIXME still smth wrong
+                formValidation.lastname = valid ? "" : "no surname?";
                 break;
             case "email":
                 emailValid = value.match(
@@ -80,18 +92,26 @@ export default class UsersForm extends React.Component {
     }
 
     submitRegistration() {
-        axios
-            .post("/register", this.state)
-            .then(results => {
-                console.log("Posting axios data", results.data);
-                if (results.data.success) {
-                    location.replace("/");
-                } else {
-                    this.setState({
-                        errorMsg: results.data.errorMsg
-                    });
-                    console.log("Got error, ", results.data.errorMsg);
-                }
+        console.log("Before submitting results, doing the geocoding");
+
+        geocodeByAddress(this.state.address)
+            .then(results => getLatLng(results[0]))
+            .then(latLng => {
+                console.log("Success", latLng);
+                const { lat, lng } = latLng;
+                console.log("Got lat lon for DB", lat, lng);
+                this.setState({ lat, lng });
+                axios.post("/register", this.state).then(results => {
+                    console.log("Data from db", results.data);
+                    if (results.data.success) {
+                        location.replace("/");
+                    } else {
+                        this.setState({
+                            errorMsg: results.data.errorMsg
+                        });
+                        console.log("Got error, ", results.data.errorMsg);
+                    }
+                });
             })
             .catch(error => {
                 console.log(error);
@@ -99,6 +119,36 @@ export default class UsersForm extends React.Component {
     }
 
     render() {
+        const inputProps = {
+            value: this.state.address,
+            onChange: this.handlePlaceChange,
+            placeholder: "Where you thrive"
+        };
+        const options = {
+            location: new google.maps.LatLng(52.52, 13.409),
+            radius: 10000, //10 km
+            country: "de",
+            types: ["geocode"]
+        };
+        const myStyles = {
+            root: { position: "relative" },
+            input: {
+                width: "168px",
+                padding: "0.2em",
+                margin: "auto",
+                fontSize: "1em",
+                fontFamily: "Arial",
+                backgroundColor: "rgba(250, 250, 250, 0.8)"
+            },
+
+            autocompleteContainer: { backgroundColor: "green" },
+            autocompleteItem: { color: "black" }
+            // autocompleteItemActive: { color: "blue" }
+        };
+        // const renderSuggestion = ({ suggestion }) =>
+        //     ({ suggestion }.split(",")[0]);
+
+        // all up for Placename
         const firstname = this.state.firstname;
         const lastname = this.state.lastname;
         const email = this.state.email;
@@ -106,10 +156,6 @@ export default class UsersForm extends React.Component {
         const msg = this.state.errorMsg;
         return (
             <div className="registration-form">
-                {msg ? <p className="error">{msg}</p> : null}
-                {!this.state.formValid && (
-                    <FormErrors formErrors={this.state.formErrors} />
-                )}
                 <form>
                     <input
                         onChange={this.handleChange}
@@ -122,6 +168,11 @@ export default class UsersForm extends React.Component {
                         name="lastname"
                         type="text"
                         placeholder="Last Name"
+                    />
+                    <PlacesAutocomplete
+                        inputProps={inputProps}
+                        options={options}
+                        styles={myStyles}
                     />
                     <input
                         onChange={this.handleChange}
@@ -144,9 +195,12 @@ export default class UsersForm extends React.Component {
                             this.submitRegistration();
                         }}
                     >
-                        {" "}
                         Register
                     </button>
+                    {msg ? <p className="error">{msg}</p> : null}
+                    {!this.state.formValid && (
+                        <FormErrors formErrors={this.state.formErrors} />
+                    )}
                     <p>
                         Already registered?<br />
                         <Link to="/login">Log in!</Link>
