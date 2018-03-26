@@ -3,32 +3,16 @@ import { connect } from "react-redux";
 import { getFriendsAndNot, updateFriendship } from "./actions";
 
 import MakeFriendsButton from "./MakeFriendsButton";
-import ProfilePic from "./ProfilePic";
-import Profile from "./Profile";
+import ListContainer from "./ListContainer";
 
 class Friends extends React.Component {
     componentDidMount() {
-        //     console.log("Location?", this.props.location);
         this.props.getFriendsAndNot();
-        console.log("getting props when mounted", this.props);
-        //getting the state - a list of friends and not
-        // if (this.props.location && this.props.location.pathname == "/friends") {
-        //     //== "/friends"
-        //     console.log("Do we have results from search?", this.props.location);
-        //     this.props.getFriendsAndNot();
-        // } else {
-        //     console.log("Got results from search", this.props);
-        //     // const { users } = this.props;
-        // }
-        // // this.props.dispatch(getFriendsAndNot());
     }
 
     render() {
-        const defaultpic = "./profilepic.svg";
-
         const { friends } = this.props;
         const { wannabes } = this.props;
-        // const { others } = this.props; // only search Button produces
 
         return (
             <div id="friends-section">
@@ -39,86 +23,18 @@ class Friends extends React.Component {
                         ) : null}
 
                         <div id="friends">
-                            {friends.map(friend => (
-                                <div
-                                    className="friend"
-                                    key={friend.id}
-                                    onClick={e => {
-                                        e.preventDefault();
-                                        <Route
-                                            path="/user/:id"
-                                            component={Profile}
-                                        />;
-                                    }}
-                                >
-                                    <ProfilePic
-                                        firstName={friend.firstname}
-                                        lastName={friend.lastname}
-                                        profilePic={
-                                            friend.profilepic || defaultpic
-                                        }
-                                    />
-                                    <div>
-                                        {friend.firstname} {friend.lastname}
-                                    </div>
-                                    <button
-                                        className="btn btn-friends"
-                                        onClick={() =>
-                                            this.props.updateFriendship(
-                                                friend.id,
-                                                5
-                                            )
-                                        }
-                                    >
-                                        Unfriend
-                                    </button>
-                                </div>
-                            ))}
+                            <ListContainer users={friends} />
                         </div>
                     </div>
                 )}
+
                 {wannabes && (
                     <div id="wannabes-wrapper">
                         {wannabes.length ? (
                             <h4>Some pending requests:</h4>
                         ) : null}
                         <div id="wannabes">
-                            {wannabes.map(wana => (
-                                <div className="friend" key={wana.id}>
-                                    <ProfilePic
-                                        firstName={wana.firstname}
-                                        lastName={wana.lastname}
-                                        profilePic={
-                                            wana.profilepic || defaultpic
-                                        }
-                                    />
-                                    <p>
-                                        {wana.firstname} {wana.lastname}
-                                    </p>
-                                    <button
-                                        className="btn btn-friends"
-                                        onClick={() =>
-                                            this.props.updateFriendship(
-                                                wana.id,
-                                                2
-                                            )
-                                        }
-                                    >
-                                        Accept
-                                    </button>
-                                    <button
-                                        className="btn btn-friends btn-reject"
-                                        onClick={() =>
-                                            this.props.updateFriendship(
-                                                wana.id,
-                                                3
-                                            )
-                                        }
-                                    >
-                                        Reject
-                                    </button>
-                                </div>
-                            ))}
+                            <ListContainer users={wannabes} />
                         </div>
                     </div>
                 )}
@@ -126,6 +42,15 @@ class Friends extends React.Component {
         );
     }
 }
+
+const friendsButton = (state, text, user_id) => {
+    <button
+        className="btn btn-friends"
+        onClick={() => this.props.updateFriendship(user_id, state)}
+    >
+        {text}
+    </button>;
+};
 
 function mapStateToProps(state) {
     console.log("state", state);
@@ -145,3 +70,40 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Friends);
+
+// how for each user show the button?
+// var FriendButton =
+// <button
+//     className="btn btn-friends"
+//     onClick={() =>
+//         this.props.updateFriendship(
+//             user.id,
+//             5
+//         )
+//     }
+// >
+//     Unfriend
+// </button>
+
+// <button
+//     className="btn btn-friends"
+//     onClick={() =>
+//         this.props.updateFriendship(
+//             wana.id,
+//             2
+//         )
+//     }
+// >
+//     Accept
+// </button>
+// <button
+//     className="btn btn-friends btn-reject"
+//     onClick={() =>
+//         this.props.updateFriendship(
+//             wana.id,
+//             3
+//         )
+//     }
+// >
+//     Reject
+// </button>

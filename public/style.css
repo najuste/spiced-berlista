@@ -168,7 +168,9 @@ form > button {
 }
 
 #map {
-    height: 180px;
+    position: absolute;
+    height: 500px;
+    width: 100%;
 }
 
 p.error {
@@ -177,29 +179,30 @@ p.error {
 }
 #to-page-friends {
     position: absolute;
-    right: 7em;
+    right: 8em;
     top: 1.7em;
     border-radius: 25px;
     padding: 0.5em;
 }
 
-#to-page-friends:hover {
-    background: radial-gradient(
-        rgba(255, 212, 42, 0.3),
-        rgba(255, 212, 42, 0.1),
-        rgba(255, 212, 42, 0),
-        rgba(255, 212, 42, 0)
-    );
-}
 #search {
     position: absolute;
-    right: 7em;
+    right: 8em;
     top: 3.6em;
     border-radius: 25px;
     padding: 0.5em;
 }
 #search input {
     width: 6em;
+}
+
+#search .btn-search {
+    position: relative;
+    top: -2.1em;
+    right: -5.3em;
+    width: 1em;
+    padding: 2px;
+    border-radius: 2px;
 }
 
 .userpic {
@@ -226,9 +229,9 @@ p.error {
 }
 
 .userpic:hover {
-    border: 5px double rgba(255, 212, 42, 0.4);
+    border: 5px double rgba(0, 188, 212, 0.8);
     cursor: pointer;
-    box-shadow: 0 0 1em rgba(250, 250, 250, 0.5);
+    /* box-shadow: 0 0 1em rgba(250, 250, 250, 0.5); */
 }
 
 #pic-uploader {
@@ -294,7 +297,7 @@ input#file + label:hover {
     color: rgb(250, 250, 250);
 }
 .btn:hover {
-    background-color: #00bcd4;
+    background-color: rgba(0, 188, 212, 0.8);
     cursor: pointer;
 }
 
@@ -308,6 +311,12 @@ input#file + label:hover {
     display: flex;
     justify-content: center;
     flex-flow: column;
+    text-align: center;
+}
+
+#profile-section h3 {
+    color: rgb(250, 250, 250);
+    margin-bottom: 0;
 }
 
 #profile-section .userpic:hover {
@@ -373,7 +382,8 @@ input#file + label:hover {
 
 /* FRIEND SECTION */
 
-#friends-section {
+#friends-section,
+#online-section {
     position: relative;
     top: 9em;
     margin: 0 2em;

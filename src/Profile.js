@@ -111,6 +111,9 @@ export default class Profile extends React.Component {
         );
         return (
             <div id="profile-section">
+                <h3>
+                    {this.state.firstName} {this.state.lastName}
+                </h3>
                 <ProfilePic
                     firstName={this.state.firstName}
                     lastName={this.state.lastName}
@@ -122,6 +125,7 @@ export default class Profile extends React.Component {
                         ? this.state.bio
                         : "User hasn't shared any hobbies with us yet"}
                 </p>
+
                 <MakeFriendsButton
                     status={this.state.status}
                     friendshipUpdate={this.friendshipUpdate}

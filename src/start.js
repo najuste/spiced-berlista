@@ -9,18 +9,21 @@ import reduxPromise from "redux-promise";
 import reducer from "./reducers";
 import { composeWithDevTools } from "redux-devtools-extension";
 // import * as io from "socket.io-client";
-
+import initSocket from "./socket.js";
 // const socket = io.connect();
 
-const store = createStore(
+export const store = createStore(
     reducer,
     composeWithDevTools(applyMiddleware(reduxPromise))
 );
+
+initSocket();
 
 let element;
 
 //logged out user - redirecting to Welcome /or Login
 if (location.pathname === "/welcome") {
+    //initSocket(); //otherwise we never make a connection
     element = <Welcome />;
 } else {
     //logged in user

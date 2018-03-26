@@ -8,10 +8,15 @@ import Profile from "./Profile";
 import ProfilePic from "./ProfilePic";
 import ProfilePicUpload from "./ProfilePicUpload";
 import Friends from "./Friends";
+import LookupResults from "./LookupResults";
+import OnlineUsers from "./OnlineUsers";
 
-// import { getUsersByString } from "./actions";
+import UsersMap from "./UsersMap";
 
-export default class App extends React.Component {
+import { connect } from "react-redux";
+import { getUsersByString } from "./actions";
+
+class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -56,28 +61,31 @@ export default class App extends React.Component {
         });
     }
 
-    //to change the state
-    // we need to pass this as the prop to pofile pic
     toggleUploader() {
         this.setState({ showUploader: !this.state.showUploader });
     }
 
+    // LOOKUP action -------------------------------------------
     handleChange(e) {
         //console.log(e.target.value);
         this.setState({ lookup: e.target.value });
     }
     handleSubmit(e) {
-        console.log("In submit button:", this.state.lookup);
-        e.preventDefault();
-        // this.props.getUsersByString(this.state.lookup);
-        axios
-            .get(`/users/${this.state.lookup}`)
-            .then(results => {
-                console.log("Here are the results", results.data);
-                this.setState({ lookupResults: results.data });
-            })
-            .catch(err => console.log(err));
+        console.log("In submit button:");
+        // console.log(this.props);
+        this.props.dispatch(getUsersByString(this.state.lookup)); //setting to STATE of redux
+        //this.props.history.push("/search"); //redirecting the user to the route /search
+        // axios
+        //     .get(`/users/${this.state.lookup}`)
+        //     .then(results => {
+        //         console.log("Here are the results", results.data);
+        //         this.setState({ lookupResults: results.data });
+        //         //changing url by pushing
+        //         this.props.history.push("/search");
+        //     })
+        //     .catch(err => console.log(err));
     }
+    //  -------------------------------------------
 
     render() {
         return (
@@ -99,19 +107,22 @@ export default class App extends React.Component {
                                     placeholder="Look up"
                                 />
 
-                                <button onClick={this.handleSubmit}>
-                                    <Link to="/search">Submit</Link>
-                                </button>
+                                <Link to="/search">
+                                    <div
+                                        className="btn btn-search"
+                                        onClick={this.handleSubmit}
+                                    >
+                                        S
+                                    </div>
+                                </Link>
                             </form>
                         </div>
-
                         <ProfilePic
                             firstName={this.state.firstName}
                             lastName={this.state.lastName}
                             profilePic={this.state.profilePic}
                             toggleUploader={this.toggleUploader}
                         />
-
                         <Route
                             exact
                             path="/"
@@ -127,7 +138,10 @@ export default class App extends React.Component {
                         />
                         <Route path="/user/:id" component={Profile} />
                         <Route path="/friends" component={Friends} />
-                        <Route path="/map" component={Map} />
+                        <Route path="/search" component={LookupResults} />
+                        <Route path="/online" component={OnlineUsers} />
+                        <Route path="/map" component={UsersMap} />
+                        UsersMap
                     </div>
                 </BrowserRouter>
 
@@ -140,21 +154,30 @@ export default class App extends React.Component {
             </div>
         );
     }
-    // tofix
-    // <Route
-    //     path="/search"
-    //     render={() => (
-    //         <Friends
-    //             lookupResults={this.state.lookupResults}
-    //         />
-    //     )}
-    // />
-
-    //  <ProfilePicUpload
-    //      toggleUploader = {this.toggleUploader}
-    //      firstname = {this.firstname}
-    //
-    //      />
-    //  {this.state.showUploader && <ProfilePicUpload />} //if this truthy, then perform this thing
-    //
 }
+
+export default connect()(App);
+
+//  <ProfilePicUpload
+//      toggleUploader = {this.toggleUploader}
+//      firstname = {this.firstname}
+//
+//      />
+//  {this.state.showUploader && <ProfilePicUpload />} //if this truthy, then perform this thing
+//
+
+// handleSubmit(e) {
+//     e.preventDefault();
+//     console.log("In submit button:");
+//     // console.log(this.props);
+//
+//     // axios
+//     //     .get(`/users/${this.state.lookup}`)
+//     //     .then(results => {
+//     //         console.log("Here are the results", results.data);
+//     //         this.setState({ lookupResults: results.data });
+//     //         //changing url by pushing
+//     //         this.props.history.push("/search");
+//     //     })
+//     //     .catch(err => console.log(err));
+// }

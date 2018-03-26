@@ -82,12 +82,25 @@ exports.getfriendsAndWannabes = function(user_id) {
     return db.query(q, [user_id]);
 };
 
-// extra feature - fetching all users from the DB from user query
+exports.getUsersOnline = function(usersIdList) {
+    return db.query(
+        `SELECT id, firstname, lastname, profilepic
+        FROM users
+        WHERE users.id = ANY ($1)`,
+        [usersIdList]
+    );
+};
+// `SELECT users.id, firstname, lastname, profilepic, status
+// FROM users
+// LEFT JOIN friendships
+// ON (sender_id = users.id OR recipient_id = users.id)
+// WHERE users.id = ANY ($1)`
+// EXTRA----- feature - fetching all users from the DB from user query
 
 exports.getUsersByString = function(searchString) {
-    const q = `SELECT firstname, lastname, profilepic
+    const q = `SELECT id, firstname, lastname, profilepic
     FROM users
-    WHERE lower(firstname||' '||lastname) LIKE lower($1)||'%'`;
+    WHERE lower(firstname||' '||lastname) LIKE '%'||lower($1)||'%'`;
     // const q2 = `SELECT users.id firstname, lastname, profilepic, status
     // FROM users JOIN friendships
     // ON (users.id = recipient_id)
@@ -97,10 +110,11 @@ exports.getUsersByString = function(searchString) {
 };
 
 exports.getUsersLocation = function() {
-    const q = `SELECT users.id firstname, lastname, profilepic, lat, lng, status
-    FROM users JOIN friendships
-    ON (users.id = sender_id)
-    OR (users.id = recipient_id)`;
+    const q = `SELECT *
+    FROM users INNER JOIN friendships f
+    ON (users.id = f.sender_id)
+    INNER JOIN friendships fr
+    ON (users.id = fr.recipient_id)`;
     return db.query(q);
 };
 //status - for it i should get from friendship

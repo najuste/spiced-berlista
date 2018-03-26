@@ -9,7 +9,53 @@ export function getFriendsAndNot() {
         };
     });
 }
+export function updateFriendship(id, status) {
+    // var accesed by index.js
+    // status= changing tostatus
+    return axios
+        .post("/updateFriendshipRequest", { id, status })
+        .then(function() {
+            return {
+                type: "UPDATE_FRIENDSHIP",
+                id: id,
+                status: status
+            };
+        });
+}
 
+// SOCKETS --- ONLINE USERS
+export function getVisitors(users) {
+    return {
+        type: "GET_VISITORS",
+        visitors: users
+    };
+}
+
+export function userJoined(user) {
+    return {
+        type: "USER_JOINED",
+        user: user
+    };
+}
+
+export function userLeft(id) {
+    return {
+        type: "USER_LEFT",
+        id: id
+    };
+}
+
+//
+// export function getAllVisitors(usersArray) { /// ?? pass the array?
+//     return axios.get(`/visitors`).then(function({ data }) {
+//         return {
+//             type: "GET_VISITORS",
+//             users: data.users
+//         };
+//     });
+// }
+
+//EXTRA ------ search
 export function getUsersByString(searchString) {
     return axios.get(`/users/${searchString}`).then(function({ data }) {
         return {
@@ -27,18 +73,4 @@ export function getAllUsersLocation() {
             users: data.users
         };
     });
-}
-
-export function updateFriendship(id, status) {
-    // var accesed by index.js
-    // status= changing tostatus
-    return axios
-        .post("/updateFriendshipRequest", { id, status })
-        .then(function() {
-            return {
-                type: "UPDATE_FRIENDSHIP",
-                id: id,
-                status: status
-            };
-        });
 }

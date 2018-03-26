@@ -7,20 +7,28 @@ const config = require("./config");
 const s3 = require("./s3");
 
 const app = express();
+
+//------ SOCKET
 const server = require("http").Server(app); //server has to detect that first meet: handshake
-// const io = require("socket.io")(server, { origins: "localhost:8080" }); //listing places from where you are accepting the connections
+const io = require("socket.io")(server, { origins: "localhost:8080" });
+
+//listing places from where you are accepting the connections
 // so socket io is listening for connections, so it would be your actual site
+
 //------ SETTING COOKIES
 var cookieSession = require("cookie-session");
-app.use(
-    cookieSession({
-        secret:
-            process.env.SESSION_SECRET ||
-            require("./secrets.json").cookieSecret,
 
-        maxAge: 1000 * 60 * 60 * 24 * 14
-    })
-);
+const cookieSessionMiddleware = cookieSession({
+    secret:
+        process.env.SESSION_SECRET || require("./secrets.json").cookieSecret,
+    maxAge: 1000 * 60 * 60 * 24 * 90
+});
+
+app.use(cookieSessionMiddleware);
+io.use(function(socket, next) {
+    //socket io can user the cookieSession middleware and the wrap into socket middleware
+    cookieSessionMiddleware(socket.request, socket.request.res, next);
+});
 
 app.use(csurf());
 app.use(function(req, res, next) {
@@ -79,10 +87,10 @@ app.post("/register", function(req, res) {
             return db
                 .register(firstname, lastname, email, hash, lat, lng)
                 .then(results => {
-                    console.log(
-                        "Got data from inserting into db, ",
-                        results.rows[0]
-                    );
+                    // console.log(
+                    //     "Got data from inserting into db, ",
+                    //     results.rows[0]
+                    // );
                     const {
                         id,
                         firstname,
@@ -101,7 +109,7 @@ app.post("/register", function(req, res) {
                         lng
                     };
 
-                    console.log("Setting cookies", req.session.loggedin);
+                    // console.log("Setting cookies", req.session.loggedin);
                     res.json({
                         success: true,
                         loggedin: true,
@@ -179,7 +187,7 @@ app.post("/login", function(req, res) {
 //--- ---- from COOKIES
 
 app.get("/user", function(req, res) {
-    console.log(req.session.loggedin);
+    // console.log('It is me in:', req.session.loggedin);
     if (req.session.loggedin) {
         //i have all data from cookies, no db request shall be made
         res.json({ user: req.session.loggedin });
@@ -203,13 +211,13 @@ app.get("/get-user-info/:id", function(req, res) {
             .getDataById(req.params.id)
             .then(results => {
                 if (results.rows.length) {
-                    console.log("Got other user:", results.rows);
+                    // console.log("Got other user:", results.rows);
                     let user = results.rows[0];
                     delete user["password"];
                     if (user.profilepic) {
                         user.profilepic = config.s3Url + user.profilepic;
                     }
-                    console.log("Friendship state with:", req.params.id);
+                    // console.log("Friendship state with:", req.params.id);
                     return db
                         .getFriendshipStatus(loggedin_id, req.params.id)
                         .then(friendsResults => {
@@ -247,12 +255,12 @@ app.get("/get-user-info/:id", function(req, res) {
 app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
     console.log("Route /upload");
     if (req.file) {
-        console.log("Successfull upload", req.file.filename);
+        // console.log("Successfull upload", req.file.filename);
         return db
             .addProfilePic(req.file.filename, req.session.loggedin.id)
             .then(results => {
                 //returning all data for now
-                console.log("Results from db", results.rows[0].profilepic);
+                // console.log("Results from db", results.rows[0].profilepic);
                 //results.image = config.s3Url + results.image;
                 req.session.loggedin.profilepic =
                     config.s3Url + results.rows[0].profilepic;
@@ -271,7 +279,7 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
 
 //--- updating user bio
 app.post("/bio", function(req, res) {
-    console.log("Inside route /bio, results:", req.body);
+    // console.log("Inside route /bio, results:", req.body);
 
     if (req.body.bio) {
         return db
@@ -314,8 +322,7 @@ app.post("/sendFriendshipRequest", function(req, res) {
 });
 
 app.post("/updateFriendshipRequest", function(req, res) {
-    console.log("In route", req.body.id, req.body.status);
-    console.log();
+    // console.log("In route", req.body.id, req.body.status);
     return db
         .updateFriendshipRequest(
             req.session.loggedin.id,
@@ -346,26 +353,31 @@ app.get("/friendsAndWannabes", function(req, res) {
                 }
                 // return user.profilepic
             });
-            console.log("Got all friends and wannabes", users);
-            res.json({
-                users: users
-            });
+            // console.log("Got all friends and wannabes", users);
+            res.json({ users });
         })
         .catch(err => console.log("Error get friends and wannabes req:", err));
 });
 
+// ---- SEARCH user
 app.get("/users/:str", function(req, res) {
     //req.params.userString
-    console.log("Inside users/string", req.params.str);
+    // console.log("Inside users/string", req.params.str);
     return db
-        .getUsers(req.params.str)
+        .getUsersByString(req.params.str)
         .then(results => {
-            console.log(results.rows);
-            res.json({ users: results.rows }); // returning an array of users that can be empty
+            let users = results.rows;
+            users.map(user => {
+                if (user.profilepic) {
+                    user.profilepic = config.s3Url + user.profilepic;
+                }
+            });
+            res.json({ users }); // returning an array of users that can be empty
         })
         .catch(err => console.log("Error from getting by userString", err));
 });
 
+// ---- MAP users on a Google Maps
 app.get("/userslocation", function(req, res) {
     return db
         .getUsersLocation()
@@ -397,39 +409,97 @@ app.get("/", function(req, res) {
 });
 
 app.get("*", function(req, res) {
-    // if (req.session.loggedin && req.url == "/welcome") {
-    //     res.redirect("/");
-    // } else if (!req.session.loggedin && req.url == "/") {
-    //     res.redirect("/welcome");
-    // }
+    if (req.session.loggedin && req.url == "/welcome") {
+        res.redirect("/");
+    } else if (!req.session.loggedin && req.url == "/") {
+        res.redirect("/welcome");
+    }
     res.sendFile(__dirname + "/index.html");
 });
 
-// SOCKETS
 // here you sould tell that thre is another server you have created
 //not app.listen, but server.listen
 server.listen(8080, function() {
     console.log("I'm listening.");
 });
 
-// io.on("connection", function(socket) {
-//     console.log(`socket with the id ${socket.id} is now connected`);
-//     // initial connection
-//
-//     //for sending a msg to client, one has to emit the event
-//     socket.emit("welcome", {
-//         message: "Welome. It is nice to see you"
-//     });
-//
-//     socket.on("thanks", function(data) {
-//         console.log(data);
-//     });
-//
-//     socket.on("disconnect", function() {
-//         // we want to know when user is disconnect
-//         console.log(`socket with the id ${socket.id} is now disconnected`);
-//     });
-// });
+// SOCKETS
+let onlineUsers = []; //we'll just store online users here in memory
+
+io.on("connection", function(socket) {
+    console.log(`socket with the id ${socket.id} is now connected`);
+
+    if (!socket.request.session || !socket.request.session.loggedin) {
+        return socket.disconnect(true);
+    }
+    const userId = socket.request.session.loggedin.id;
+    onlineUsers.push({
+        userId,
+        socketId: socket.id
+    });
+
+    // console.log("Initial users online", onlineUsers);
+
+    //there are sit, when users connects, (another tab), but we should not open the new socket
+    //So we need to check if it is in the list. //or push and then check if just once in the list and then emit
+
+    const oneConnection = () =>
+        onlineUsers.filter(ou => ou.userId == userId).length == 1
+            ? true
+            : false;
+
+    if (oneConnection()) {
+        socket.broadcast.emit("userJoined", {
+            user: socket.request.session.loggedin
+        });
+    } else {
+        // console.log(`Same user just opened another tab`);
+    }
+
+    //getting data from db about connected users
+    let onlineUsersIds = onlineUsers.map(ou => ou.userId);
+    db
+        .getUsersOnline(onlineUsersIds)
+        .then(results => {
+            let users = results.rows;
+            users.map(user => {
+                if (user.profilepic) {
+                    user.profilepic = config.s3Url + user.profilepic;
+                }
+            });
+            socket.emit("onlineUsers", {
+                visitors: users
+            });
+        })
+        .catch(err => console.log(err));
+
+    //for sending a msg to client, one has to emit the event
+    // socket.emit("welcome", {
+    //     message: "Welome. It is nice to see you"
+    // });
+    //
+    // socket.on("thanks", function(data) {
+    //     console.log(data);
+    // });
+
+    socket.on("disconnect", function() {
+        if (oneConnection()) {
+            io.sockets.emit("userLeft", {
+                id: userId
+            });
+            // console.log(`User left`, userId);
+        } else {
+            // console.log(`Same user just closed a tab, still some tab running`);
+        }
+
+        onlineUsers = onlineUsers.filter(ou => ou.socketId !== socket.id);
+        // console.log("Removing the entry:", socket.id, onlineUsers);
+        console.log(`socket with the id ${socket.id} is now disconnected`);
+    });
+    // console.log("Users online after disconnecting", onlineUsers);
+});
+
+// server sends events onlineUsers, userJoined, userLeft
 
 function hashPassword(plainTextPassword) {
     return new Promise(function(resolve, reject) {
