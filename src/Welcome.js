@@ -10,8 +10,11 @@ export default class Welcome extends React.Component {
         return (
             <div id="welcome-wrapper">
                 <div id="welcome">
-                    <h1>Welcome to</h1>
-                    <h1 id="berlin">BERL'</h1>
+                    <div id="welcome-logo">
+                        <h1 id="berlin">BERL</h1>
+                        <h1 id="berlin-hang">ista</h1>
+                    </div>
+
                     <HashRouter>
                         <div id="form">
                             <Route

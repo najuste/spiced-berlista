@@ -87,10 +87,6 @@ app.post("/register", function(req, res) {
             return db
                 .register(firstname, lastname, email, hash, lat, lng)
                 .then(results => {
-                    // console.log(
-                    //     "Got data from inserting into db, ",
-                    //     results.rows[0]
-                    // );
                     const {
                         id,
                         firstname,
@@ -108,8 +104,6 @@ app.post("/register", function(req, res) {
                         lat,
                         lng
                     };
-
-                    // console.log("Setting cookies", req.session.loggedin);
                     res.json({
                         success: true,
                         loggedin: true,
@@ -187,9 +181,7 @@ app.post("/login", function(req, res) {
 //--- ---- from COOKIES
 
 app.get("/user", function(req, res) {
-    // console.log('It is me in:', req.session.loggedin);
     if (req.session.loggedin) {
-        //i have all data from cookies, no db request shall be made
         res.json({ user: req.session.loggedin });
     } else {
         console.log("there is a problem, user is not logged in...");
@@ -199,10 +191,9 @@ app.get("/user", function(req, res) {
 });
 
 //--- ---- from db getting data about user from both tables
-
 app.get("/get-user-info/:id", function(req, res) {
     let loggedin_id = req.session.loggedin.id;
-    console.log("Session id", req.session.loggedin, req.params);
+    // console.log("Session id", req.session.loggedin, req.params);
     if (loggedin_id == req.params.id) {
         console.log("same user as requested profile");
         res.json({ user: "same" });
@@ -238,16 +229,9 @@ app.get("/get-user-info/:id", function(req, res) {
                     res.json({ user: "none" });
                 }
             })
-            .catch(err => console.log("Error fetching data".err));
+            .catch(err => console.log("Error fetching data", err));
         //do query
     }
-    // if (req.session.loggedin) {
-    //     //i have all data from cookies, no db request shall be made
-    //     res.json({ user: req.session.loggedin });
-    // } else {
-    //     console.log("there is a problem, user is not logged in...");
-    //     res.redirect("/welcome");
-    // }
 });
 
 //--- uploading the user img
@@ -255,13 +239,11 @@ app.get("/get-user-info/:id", function(req, res) {
 app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
     console.log("Route /upload");
     if (req.file) {
-        // console.log("Successfull upload", req.file.filename);
         return db
             .addProfilePic(req.file.filename, req.session.loggedin.id)
             .then(results => {
                 //returning all data for now
                 // console.log("Results from db", results.rows[0].profilepic);
-                //results.image = config.s3Url + results.image;
                 req.session.loggedin.profilepic =
                     config.s3Url + results.rows[0].profilepic;
                 res.json({ image: config.s3Url + results.rows[0].profilepic });
@@ -279,8 +261,6 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
 
 //--- updating user bio
 app.post("/bio", function(req, res) {
-    // console.log("Inside route /bio, results:", req.body);
-
     if (req.body.bio) {
         return db
             .addBio(req.body.bio, req.session.loggedin.id)
@@ -298,6 +278,40 @@ app.post("/bio", function(req, res) {
     }
 
     //update cookies!
+});
+// --- leting user sign on the handleWallSubmit
+
+app.post("/profile-wall", function(req, res) {
+    console.log("In route for writing to wall..", req.body);
+    const { receiver, msg } = req.body;
+    db
+        .writeMsgToProfileWall(req.session.loggedin.id, receiver, msg)
+        .then(results => {
+            console.log("res from post", results.rows);
+            let currentMessage = results.rows;
+            let currentUser = req.session.loggedin;
+            Object.assign(currentMessage, currentUser);
+            res.json({ message: results.rows });
+        })
+        .catch(err => console.log(err));
+    //RESPONSE
+});
+
+app.get("/profile-wall/:id", function(req, res) {
+    console.log("In the route of profile-wall", req.params.id);
+    db
+        .getMsgsToProfileWall(req.params.id)
+        .then(results => {
+            console.log("res from get", results.rows);
+            let messages = results.rows;
+            messages.map(user => {
+                if (user.profilepic) {
+                    user.profilepic = config.s3Url + user.profilepic;
+                }
+            });
+            res.json({ messages });
+        })
+        .catch(err => console.log(err));
 });
 
 //---- FRIENDSHIP UPDATES
@@ -377,13 +391,19 @@ app.get("/users/:str", function(req, res) {
         .catch(err => console.log("Error from getting by userString", err));
 });
 
-// ---- MAP users on a Google Maps
+// ---- MAP users on a GoogleMaps
 app.get("/userslocation", function(req, res) {
     return db
         .getUsersLocation()
         .then(results => {
             console.log(results);
-            res.json({ users: results.rows });
+            let users = results.rows;
+            users.map(user => {
+                if (user.profilepic) {
+                    user.profilepic = config.s3Url + user.profilepic;
+                }
+            });
+            res.json({ users });
         })
         .catch(err =>
             console.log("Error from getting all users with loc", err)
@@ -423,8 +443,10 @@ server.listen(8080, function() {
     console.log("I'm listening.");
 });
 
-// SOCKETS
-let onlineUsers = []; //we'll just store online users here in memory
+// --------------- SOCKETS ---------------
+
+let onlineUsers = []; //storing users and msgs in memory
+let messagesData = [];
 
 io.on("connection", function(socket) {
     console.log(`socket with the id ${socket.id} is now connected`);
@@ -437,12 +459,8 @@ io.on("connection", function(socket) {
         userId,
         socketId: socket.id
     });
-
-    // console.log("Initial users online", onlineUsers);
-
     //there are sit, when users connects, (another tab), but we should not open the new socket
     //So we need to check if it is in the list. //or push and then check if just once in the list and then emit
-
     const oneConnection = () =>
         onlineUsers.filter(ou => ou.userId == userId).length == 1
             ? true
@@ -450,11 +468,44 @@ io.on("connection", function(socket) {
 
     if (oneConnection()) {
         socket.broadcast.emit("userJoined", {
-            user: socket.request.session.loggedin
+            user: socket.request.session.loggedin //deconstruct rather hre before sending
         });
     } else {
         // console.log(`Same user just opened another tab`);
     }
+
+    //CHAT messages
+
+    console.log("Emit chatMessages:", messagesData);
+    socket.emit("chatMessages", messagesData);
+
+    socket.on("chatMessage", text => {
+        console.log("---< M : ", text);
+        const {
+            id,
+            firstname: firstName,
+            lastname: lastName,
+            profilepic: profilePic
+        } = socket.request.session.loggedin;
+        const timestamp = new Date(Date.now());
+
+        const msg = {
+            timestamp,
+            text,
+            user: { id, firstName, lastName, profilePic }
+        };
+        //update the storage in server
+        console.log("-msg data:", msg);
+        messagesData.push({
+            timestamp,
+            text,
+            user: { id, firstName, lastName, profilePic }
+        });
+        console.log("--- all chat", messagesData);
+        io.sockets.emit("chatMessage", {
+            msg
+        });
+    });
 
     //getting data from db about connected users
     let onlineUsersIds = onlineUsers.map(ou => ou.userId);
@@ -473,33 +524,18 @@ io.on("connection", function(socket) {
         })
         .catch(err => console.log(err));
 
-    //for sending a msg to client, one has to emit the event
-    // socket.emit("welcome", {
-    //     message: "Welome. It is nice to see you"
-    // });
-    //
-    // socket.on("thanks", function(data) {
-    //     console.log(data);
-    // });
-
     socket.on("disconnect", function() {
         if (oneConnection()) {
             io.sockets.emit("userLeft", {
                 id: userId
             });
-            // console.log(`User left`, userId);
-        } else {
-            // console.log(`Same user just closed a tab, still some tab running`);
         }
 
         onlineUsers = onlineUsers.filter(ou => ou.socketId !== socket.id);
         // console.log("Removing the entry:", socket.id, onlineUsers);
         console.log(`socket with the id ${socket.id} is now disconnected`);
     });
-    // console.log("Users online after disconnecting", onlineUsers);
 });
-
-// server sends events onlineUsers, userJoined, userLeft
 
 function hashPassword(plainTextPassword) {
     return new Promise(function(resolve, reject) {

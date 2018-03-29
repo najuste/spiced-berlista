@@ -45,6 +45,21 @@ export function userLeft(id) {
     };
 }
 
+export function getChatMessages(msgs) {
+    return {
+        type: "GET_MESSAGES",
+        messages: msgs
+    };
+}
+
+export function singleChatMessage(msg) {
+    console.log("in actions: singleChatMessage:", msg);
+    return {
+        type: "CHAT_MESSAGE",
+        msg
+    };
+}
+
 //
 // export function getAllVisitors(usersArray) { /// ?? pass the array?
 //     return axios.get(`/visitors`).then(function({ data }) {

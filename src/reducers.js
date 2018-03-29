@@ -46,6 +46,22 @@ export default function(state = {}, action) {
         };
     }
 
+    // chat MESSAGES //getChatMessages
+
+    if (action.type === "GET_MESSAGES") {
+        state = Object.assign({}, state, {
+            messages: action.messages
+        });
+    }
+    if (action.type === "CHAT_MESSAGE") {
+        console.log("In reducer chat message:", state);
+        state = Object.assign({}, state, {
+            messages: state.messages
+                ? [...state.messages, action.msg]
+                : [action.msg]
+        });
+    }
+
     // EXTRA FEATURES
     if (action.type == "LOOKUP_BY_STRING") {
         state = Object.assign({}, state, {

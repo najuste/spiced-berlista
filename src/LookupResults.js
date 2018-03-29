@@ -16,7 +16,6 @@ class LookupResults extends React.Component {
                         ) : (
                             <h4>Nothing found: Try again</h4>
                         )}
-
                         <div id="friends">
                             <ListContainer users={users} />
                         </div>
@@ -28,7 +27,6 @@ class LookupResults extends React.Component {
 }
 
 function mapStateToProps(state) {
-    console.log("state", state);
     return {
         users: state.users
     };

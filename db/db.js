@@ -97,6 +97,24 @@ exports.getUsersOnline = function(usersIdList) {
 // WHERE users.id = ANY ($1)`
 // EXTRA----- feature - fetching all users from the DB from user query
 
+exports.writeMsgToProfileWall = function(sender_id, walluser_id, msg) {
+    return db.query(
+        `INSERT INTO messages (sender_id, walluser_id, msg) VALUES($1, $2, $3) RETURNING *`,
+        [sender_id, walluser_id, msg]
+    );
+};
+exports.getMsgsToProfileWall = function(walluser_id) {
+    return db.query(
+        `SELECT firstname, lastname, profilepic, sender_id, msg
+        FROM messages
+        JOIN users
+        ON messages.sender_id = users.id
+        WHERE walluser_id = $1
+        ORDER BY messages.created_at DESC`,
+        [walluser_id]
+    );
+};
+
 exports.getUsersByString = function(searchString) {
     const q = `SELECT id, firstname, lastname, profilepic
     FROM users
@@ -110,11 +128,15 @@ exports.getUsersByString = function(searchString) {
 };
 
 exports.getUsersLocation = function() {
-    const q = `SELECT *
-    FROM users INNER JOIN friendships f
-    ON (users.id = f.sender_id)
-    INNER JOIN friendships fr
-    ON (users.id = fr.recipient_id)`;
+    const q = `SELECT id, firstname, lastname, profilepic, lat, lng, bio
+    FROM users`;
+    // const q2 = `SELECT users.id, firstname, lastname, profilepic, lat, lng, bio, f.status
+    // FROM users INNER JOIN friendships f
+    // ON (users.id = f.sender_id)
+    // INNER JOIN friendships fr
+    // ON (users.id = fr.recipient_id)`;
+
     return db.query(q);
 };
+
 //status - for it i should get from friendship

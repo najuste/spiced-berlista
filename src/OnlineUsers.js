@@ -16,7 +16,7 @@ class OnlineUsers extends React.Component {
                         ) : null}
 
                         <div id="friends">
-                            <ListContainer users={friends} />
+                            <ListContainer users={friends} btn={null} />
                         </div>
                     </div>
                 )}
@@ -24,7 +24,7 @@ class OnlineUsers extends React.Component {
                     <div id="non-friends-wrapper">
                         {others.length ? <h4>Other users online:</h4> : null}
                         <div id="non-friends">
-                            <ListContainer users={others} />
+                            <ListContainer users={others} btn={null} />
                         </div>
                     </div>
                 )}

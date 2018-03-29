@@ -27,6 +27,34 @@ header > img {
     transform: rotate(180deg);
 }
 
+nav {
+    position: relative;
+    width: 100%;
+}
+
+nav ul {
+    display: flex;
+    justify-content: flex-end;
+    height: inherit;
+    list-style: none;
+    margin: 0;
+    padding: 0 2em;
+    align-items: center;
+}
+nav li {
+    display: inline-block;
+    padding: 0 10px;
+}
+
+nav li #search {
+    height: 37px;
+}
+nav li:first-child {
+    flex-grow: 1;
+}
+nav li:last-child {
+}
+
 body {
     margin: 0;
 }
@@ -52,7 +80,7 @@ main {
 }
 
 #welcome-wrapper {
-    height: 90vh;
+    /* height: 90vh; */
     overflow: hidden;
     font-size: 15px;
 }
@@ -69,22 +97,39 @@ main {
 
 /* --------------LOGO */
 
-#berlin {
-    font-family: Monoton;
+#welcome-logo {
     color: #00bcd4;
-    margin: auto;
-    letter-spacing: 1vw;
-    font-size: 7em;
+    display: flex;
+    justify-content: center;
+    font-family: Monoton;
     -webkit-transition: all 1s;
     -moz-transition: all 1s;
     transition: all 1s;
-}
-
-/* #welcome #berlin {
     -webkit-animation: neon 1.5s ease-in-out infinite alternate;
     -moz-animation: neon 1.5s ease-in-out infinite alternate;
     animation: neon 1.5s ease-in-out infinite alternate;
-} */
+}
+
+#welcome-logo h1 {
+    display: inline;
+    margin: 10px;
+}
+#berlin {
+    /* margin: auto; */
+    letter-spacing: 1vw;
+    font-size: 7em;
+    font-family: Monoton;
+}
+
+#berlin-hang {
+    font-size: 3em;
+    transform: rotate(20deg);
+    padding: 1.5em 0;
+    letter-spacing: 0.2em;
+}
+
+#welcome #berlin {
+}
 #berlin:hover {
     color: rgb(255, 212, 42);
     -webkit-animation: none;
@@ -98,9 +143,9 @@ main {
             0 0 80px #2196f3, 0 0 100px #2196f3;
     }
     100% {
-        text-shadow: 0 0 5px #2196f3, 0 0 10px rgba(255, 212, 42, 0.5),
-            0 0 10px rgb(255, 212, 42), 0 0 20px #2196f3, 0 0 30px #2196f3,
-            0 0 40px #2196f3, 0 0 50px #2196f3, 0 0 60px #2196f3;
+        text-shadow: 0 0 0px #2196f3, 0 0 8px rgba(255, 212, 42, 0.5),
+            0 0 10px rgb(255, 212, 42), 0 0 20px #2196f3, 0 0 25px #2196f3,
+            0 0 30px #2196f3, 0 0 35px #2196f3, 0 0 40px #2196f3;
     }
 }
 
@@ -116,7 +161,7 @@ main {
     padding: 0.1em;
 }
 
-form > input {
+input {
     display: block;
     padding: 0.2em;
     margin: 0.5em auto;
@@ -125,7 +170,7 @@ form > input {
     background-color: rgba(250, 250, 250, 0.8);
 }
 
-form > textarea {
+textarea {
     font-size: 1em;
     width: 20em;
 }
@@ -145,9 +190,9 @@ form > textarea {
     color: rgb(255, 212, 42);
 }
 
-form > button {
+button {
     display: block;
-    width: 100px;
+    /* width: 100px; */
     padding: 5px;
     margin: 5px auto;
 }
@@ -158,8 +203,7 @@ form > button {
     height: inherit;
 }
 .logo-image {
-    position: absolute;
-    left: 3em;
+    position: relative;
     display: inline-block;
     font-size: 0.8em;
 }
@@ -169,7 +213,7 @@ form > button {
 
 #map {
     position: absolute;
-    height: 500px;
+    height: 800px;
     width: 100%;
 }
 
@@ -177,21 +221,7 @@ p.error {
     color: rgb(255, 212, 42);
     font-style: italic;
 }
-#to-page-friends {
-    position: absolute;
-    right: 8em;
-    top: 1.7em;
-    border-radius: 25px;
-    padding: 0.5em;
-}
 
-#search {
-    position: absolute;
-    right: 8em;
-    top: 3.6em;
-    border-radius: 25px;
-    padding: 0.5em;
-}
 #search input {
     width: 6em;
 }
@@ -222,11 +252,10 @@ p.error {
         rgba(0, 255, 255, 0)
     );
 }
-.userpic-wrapper {
-    position: absolute;
-    padding: 2em;
-    right: 0;
-}
+/* .userpic-wrapper {
+    position: relative;
+    margin: 2em;
+} */
 
 .userpic:hover {
     border: 5px double rgba(0, 188, 212, 0.8);
@@ -237,12 +266,12 @@ p.error {
 #pic-uploader {
     text-align: center;
     background-color: rgba(43, 43, 43, 0.8);
-    width: 6.5em;
+    width: 7em;
     height: 4em;
     padding-top: 1em;
     padding-bottom: 0.5em;
     position: absolute;
-    top: 2em;
+    top: 1em;
     right: 1em;
     border-radius: 25px;
 }
@@ -305,7 +334,6 @@ input#file + label:hover {
 
 #profile-section {
     position: relative;
-    top: 9em;
     margin: 0 2em;
     border-top: 5px double rgba(0, 188, 212, 0.4);
     display: flex;
@@ -324,18 +352,18 @@ input#file + label:hover {
 }
 
 /* lower part */
-#profile-section form {
+/* #profile-section  {
     position: relative;
     display: inline-block;
     text-align: center;
-}
+} */
 
-#profile-section form .btn-bio {
+/* #profile-section .btn-bio {
     display: inline-block;
     position: absolute;
     top: 35px;
     margin: 1em;
-}
+} */
 
 #profile-section .userpic-wrapper {
     position: relative;
@@ -380,12 +408,46 @@ input#file + label:hover {
     outline: none;
 }
 
+/* message board */
+
+.wall {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.wall textarea {
+    width: 75%;
+}
+#wall-section {
+    text-align: center;
+    margin: auto;
+    width: 75%;
+}
+#wall-section .userpic-wrapper {
+    padding: 0em;
+    margin: 1em;
+}
+#wall-section .userpic {
+    width: 4em;
+    height: 4em;
+}
+#wall-section .msg {
+    background-color: #2b2b2b;
+    box-shadow: 0 0 10px;
+}
+button.btn-wall {
+    display: inline;
+    position: absolute;
+    height: 34px;
+    width: 3.5em;
+    margin: 5px;
+    border-radius: 2px;
+}
 /* FRIEND SECTION */
 
 #friends-section,
-#online-section {
+#online-section,
+#chat-section {
     position: relative;
-    top: 9em;
     margin: 0 2em;
     border-top: 5px double rgba(0, 188, 212, 0.4);
     color: rgba(0, 188, 212, 0.8);
@@ -448,4 +510,47 @@ input#file + label:hover {
 .friend p {
     font-style: italic;
     text-transform: uppercase;
+}
+
+/* CHAT ROOM */
+#chat-wrapper {
+    background: #2b2b2b;
+    border-bottom-right-radius: 25px;
+    border-bottom-left-radius: 25px;
+
+    height: 400px;
+    overflow: auto;
+}
+
+.msg {
+    display: flex;
+    padding: 5px;
+    border-radius: 25px;
+    border-bottom: 2px solid #222222;
+}
+.msg-data p {
+    display: inline;
+    margin: 0;
+}
+.msg-data .time {
+    font-size: 0.7em;
+}
+.msg-data p.text {
+    display: block;
+}
+
+.msg .userpic-wrapper {
+    position: relative;
+    display: inline;
+    padding: 0;
+}
+
+/* //GOOGLE MAPS STUFF */
+.pic-marker .userpic-wrapper {
+    position: absolute;
+    padding: 0;
+}
+
+.pic-marker .userpic:hover {
+    border: 5px solid rgba(0, 188, 212, 0.8);
 }

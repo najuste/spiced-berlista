@@ -8,6 +8,7 @@ import Profile from "./Profile";
 import ProfilePic from "./ProfilePic";
 import ProfilePicUpload from "./ProfilePicUpload";
 import Friends from "./Friends";
+import ChatRoom from "./ChatRoom";
 import LookupResults from "./LookupResults";
 import OnlineUsers from "./OnlineUsers";
 
@@ -27,14 +28,14 @@ class App extends React.Component {
             profilePic: "/profilepic.svg",
             bio: "",
             showUploader: false,
-            lookup: "",
-            lookupResults: ""
+            lookup: ""
         };
         this.toggleUploader = this.toggleUploader.bind(this);
         this.setImage = this.setImage.bind(this);
         this.setBio = this.setBio.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleKey = this.handleKey.bind(this);
     }
 
     setImage(profilePic) {
@@ -67,23 +68,18 @@ class App extends React.Component {
 
     // LOOKUP action -------------------------------------------
     handleChange(e) {
-        //console.log(e.target.value);
-        this.setState({ lookup: e.target.value });
+        let l = e.target.value.toString();
+        this.setState({ lookup: l });
     }
     handleSubmit(e) {
-        console.log("In submit button:");
-        // console.log(this.props);
-        this.props.dispatch(getUsersByString(this.state.lookup)); //setting to STATE of redux
-        //this.props.history.push("/search"); //redirecting the user to the route /search
-        // axios
-        //     .get(`/users/${this.state.lookup}`)
-        //     .then(results => {
-        //         console.log("Here are the results", results.data);
-        //         this.setState({ lookupResults: results.data });
-        //         //changing url by pushing
-        //         this.props.history.push("/search");
-        //     })
-        //     .catch(err => console.log(err));
+        this.props.dispatch(getUsersByString(this.state.lookup));
+        //setting to STATE of redux (while the rest is not...)
+    }
+
+    handleKey(e) {
+        if (e.key === "Enter") {
+            this.handleSubmit();
+        }
     }
     //  -------------------------------------------
 
@@ -92,37 +88,54 @@ class App extends React.Component {
             <div id="loggedin">
                 <BrowserRouter>
                     <div>
-                        <Link to="/">
-                            <Logo />
-                        </Link>
-                        <div id="to-page-friends">
-                            <Link to="/friends">Friends</Link>
-                        </div>
-                        <div id="search">
-                            <form>
-                                <input
-                                    onChange={this.handleChange}
-                                    name="search"
-                                    type="text"
-                                    placeholder="Look up"
-                                />
+                        <nav>
+                            <ul>
+                                <li>
+                                    <Link to="/">
+                                        <Logo />
+                                    </Link>
+                                </li>
 
-                                <Link to="/search">
-                                    <div
-                                        className="btn btn-search"
-                                        onClick={this.handleSubmit}
-                                    >
-                                        S
+                                <li>
+                                    <Link to="/map">Map</Link>
+                                </li>
+                                <li>
+                                    <Link to="/chat">Chat</Link>
+                                </li>
+                                <li>
+                                    <Link to="/friends">Friends</Link>
+                                </li>
+
+                                <li>
+                                    <div id="search">
+                                        <Link to="/search">
+                                            <input
+                                                onChange={this.handleChange}
+                                                onKeyDown={this.handleKey}
+                                                name="search"
+                                                type="text"
+                                                placeholder="Look up"
+                                            />
+
+                                            <div
+                                                className="btn btn-search"
+                                                onClick={this.handleSubmit}
+                                            >
+                                                S
+                                            </div>
+                                        </Link>
                                     </div>
-                                </Link>
-                            </form>
-                        </div>
-                        <ProfilePic
-                            firstName={this.state.firstName}
-                            lastName={this.state.lastName}
-                            profilePic={this.state.profilePic}
-                            toggleUploader={this.toggleUploader}
-                        />
+                                </li>
+                                <li>
+                                    <ProfilePic
+                                        firstName={this.state.firstName}
+                                        lastName={this.state.lastName}
+                                        profilePic={this.state.profilePic}
+                                        toggleUploader={this.toggleUploader}
+                                    />
+                                </li>
+                            </ul>
+                        </nav>
                         <Route
                             exact
                             path="/"
@@ -140,8 +153,8 @@ class App extends React.Component {
                         <Route path="/friends" component={Friends} />
                         <Route path="/search" component={LookupResults} />
                         <Route path="/online" component={OnlineUsers} />
+                        <Route path="/chat" component={ChatRoom} />
                         <Route path="/map" component={UsersMap} />
-                        UsersMap
                     </div>
                 </BrowserRouter>
 
@@ -157,27 +170,3 @@ class App extends React.Component {
 }
 
 export default connect()(App);
-
-//  <ProfilePicUpload
-//      toggleUploader = {this.toggleUploader}
-//      firstname = {this.firstname}
-//
-//      />
-//  {this.state.showUploader && <ProfilePicUpload />} //if this truthy, then perform this thing
-//
-
-// handleSubmit(e) {
-//     e.preventDefault();
-//     console.log("In submit button:");
-//     // console.log(this.props);
-//
-//     // axios
-//     //     .get(`/users/${this.state.lookup}`)
-//     //     .then(results => {
-//     //         console.log("Here are the results", results.data);
-//     //         this.setState({ lookupResults: results.data });
-//     //         //changing url by pushing
-//     //         this.props.history.push("/search");
-//     //     })
-//     //     .catch(err => console.log(err));
-// }

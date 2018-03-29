@@ -2,14 +2,29 @@ import React from "react";
 import { connect } from "react-redux";
 import { getAllUsersLocation } from "./actions";
 const secrets = require("./../googleMAPI.js");
-//
-// import MakeFriendsButton from "./MakeFriendsButton";
-// import ProfilePic from "./ProfilePic";
+
+import { Link } from "react-router-dom";
+
+import ProfilePic from "./ProfilePic";
+const defaultpic = "./profilepic.svg";
 
 import GoogleMapReact from "google-map-react";
-//
-// const AnyReactComponent = ({ mapplace }) => <div id="map">{mapplace}</div>;
-const CustomMarker = ({ text }) => <div>{text}</div>;
+
+const Marker = ({ marker }) => {
+    // console.log("In custom marker: props", marker);
+    return (
+        <div className="pic-marker">
+            <Link to={"/user/" + marker.id}>
+                <ProfilePic
+                    firstName={marker.firstname}
+                    lastName={marker.lastname}
+                    profilePic={marker.profilepic || defaultpic}
+                />
+            </Link>
+            <div> {marker.firstname}</div>
+        </div>
+    );
+};
 
 class UsersMap extends React.Component {
     constructor() {
@@ -18,6 +33,7 @@ class UsersMap extends React.Component {
             center: { lat: 52.52, lng: 13.409 },
             zoom: 12
         };
+        this.createMapMarkers = this.createMapMarkers.bind(this);
     }
 
     componentDidMount() {
@@ -25,29 +41,37 @@ class UsersMap extends React.Component {
         console.log(this.state);
     }
 
+    // TO DO: GOOGLE MAP MARKERS NOT WORKING
+
+    createMapMarkers() {
+        if (!this.props.all) {
+            return null;
+        }
+        const GoogleMapMarkers = this.props.all.map(marker => {
+            return (
+                <Marker
+                    key={`marker_${marker.id}`}
+                    lat={marker.lat}
+                    lng={marker.lng}
+                    marker={marker}
+                />
+            );
+        });
+        return GoogleMapMarkers;
+    }
+
     render() {
         // const { friends } = this.props;
         // const { wannabes } = this.props;
         // const { others } = this.props;
         const { all } = this.props;
-        console.log("In render:", this.props.all);
-
-        const GoogleMapMarkers =
-            this.props.all &&
-            this.props.all.map(marker => (
-                <CustomMarker
-                    key={`marker_${marker.id}`}
-                    lat={marker.lat}
-                    lng={marker.lng}
-                    text={marker.firstname}
-                />
-            ));
+        // console.log("In render:", this.props.all);
 
         return (
             <div
                 style={{
+                    borderTop: "5px double rgba(0, 188, 212, 0.4)",
                     height: "88vh",
-                    paddingTop: "9em",
                     display: "-webkit-flex"
                 }}
             >
@@ -59,6 +83,7 @@ class UsersMap extends React.Component {
                     defaultZoom={this.state.zoom}
                 >
                     <div />
+                    {this.createMapMarkers()}
                 </GoogleMapReact>
             </div>
         );
@@ -68,7 +93,6 @@ class UsersMap extends React.Component {
 export default connect(mapStateToProps, mapDispatchToProps)(UsersMap);
 
 function mapStateToProps(state) {
-    console.log("state", state);
     return {
         all: state.users,
         friends:

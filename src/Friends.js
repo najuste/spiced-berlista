@@ -21,9 +21,12 @@ class Friends extends React.Component {
                         {friends.length ? (
                             <h4>Here are your friends:</h4>
                         ) : null}
-
                         <div id="friends">
-                            <ListContainer users={friends} />
+                            <ListContainer
+                                updateFriendship={this.props.updateFriendship}
+                                users={friends}
+                                btn={[{ status: 5, text: "Unfriend" }]}
+                            />
                         </div>
                     </div>
                 )}
@@ -34,7 +37,14 @@ class Friends extends React.Component {
                             <h4>Some pending requests:</h4>
                         ) : null}
                         <div id="wannabes">
-                            <ListContainer users={wannabes} />
+                            <ListContainer
+                                updateFriendship={this.props.updateFriendship}
+                                users={wannabes}
+                                btn={[
+                                    { status: 2, text: "Accept" },
+                                    { status: 3, text: "Reject" }
+                                ]}
+                            />
                         </div>
                     </div>
                 )}
@@ -43,7 +53,7 @@ class Friends extends React.Component {
     }
 }
 
-const friendsButton = (state, text, user_id) => {
+const friendsButton = (state, text) => {
     <button
         className="btn btn-friends"
         onClick={() => this.props.updateFriendship(user_id, state)}
@@ -70,40 +80,3 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Friends);
-
-// how for each user show the button?
-// var FriendButton =
-// <button
-//     className="btn btn-friends"
-//     onClick={() =>
-//         this.props.updateFriendship(
-//             user.id,
-//             5
-//         )
-//     }
-// >
-//     Unfriend
-// </button>
-
-// <button
-//     className="btn btn-friends"
-//     onClick={() =>
-//         this.props.updateFriendship(
-//             wana.id,
-//             2
-//         )
-//     }
-// >
-//     Accept
-// </button>
-// <button
-//     className="btn btn-friends btn-reject"
-//     onClick={() =>
-//         this.props.updateFriendship(
-//             wana.id,
-//             3
-//         )
-//     }
-// >
-//     Reject
-// </button>

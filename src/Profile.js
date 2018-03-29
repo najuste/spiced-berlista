@@ -14,9 +14,11 @@ export default class Profile extends React.Component {
             email: "",
             profilePic: "/profilepic.svg",
             bio: "",
-            status: 0
+            status: 0,
+            messages: []
         };
         this.friendshipUpdate = this.friendshipUpdate.bind(this);
+        this.handleWallSubmit = this.handleWallSubmit.bind(this);
     }
 
     //componentWillReceiveProps() {}
@@ -25,7 +27,8 @@ export default class Profile extends React.Component {
         axios
             .get(`/get-user-info/${this.props.match.params.id}`) //UPDATE results with friendship status
             .then(results => {
-                console.log("resuts from axios", results.data.user);
+                //console.log("resuts from axios", results.data.user);
+
                 if (results.data.user !== "same") {
                     const {
                         id,
@@ -48,12 +51,15 @@ export default class Profile extends React.Component {
                         senderId: results.data.user.sender_id || null,
                         recipientId: results.data.user.recipient_id || null
                     });
-                    // if (results.data.user.sender_id) {
-                    //     this.setState({
-                    //         senderId: results.data.user.sender_id,
-                    //         recipientId: results.data.user.recipient_id
-                    //     });
-                    // }
+
+                    console.log("Passing id:", this.props.match.params.id);
+                    axios
+                        .get(`/profile-wall/${this.props.match.params.id}`)
+                        .then(res => {
+                            console.log("Data to post to wall:", res.data);
+                            const { messages } = res.data;
+                            this.setState({ messages });
+                        });
                 } else {
                     //if results.data.user !== "none" // show msg no such user
                     this.props.history.push("/");
@@ -82,7 +88,6 @@ export default class Profile extends React.Component {
                 }
             }
             if (status === 2) {
-                //accepted
                 this.friendshipUpdateFun("/updateFriendshipRequest", 4, id); //terminate
             }
         }
@@ -93,33 +98,49 @@ export default class Profile extends React.Component {
             .post(route, { id, status })
             .then(results => {
                 const { status, recipientId, senderId } = results.data;
-                console.log("Data from axios", results.data);
-                // yzou need to send back the senderid and the recipientid from the post route
-                // setthe state with this data, sthat shuld fix this shit
-
                 this.setState({ status, recipientId, senderId });
             })
             .catch(err => console.log("friendship Update err:", err));
     }
 
+    writeToWall(receiver, msg) {
+        axios
+            .post("/profile-wall", { receiver, msg })
+            .then(results => {
+                // console.log("Data from axios:", results.data);
+                const { message } = results.data;
+                //update messages with message (!!!!)
+                //messages.push({ message });
+            })
+            .catch(err => console.log("write to wall err:", err));
+    }
+
+    handleWallSubmit(e) {
+        e && e.preventDefault();
+        let el = document.querySelector("textarea");
+        let msg = el.value;
+        this.writeToWall(this.state.id, msg);
+        el.value = "";
+    }
+    handleKeyDown(e) {
+        if (e.key === "Enter") {
+            console.log("Got enter");
+            this.handleWallSubmit();
+        }
+    }
+
     render() {
-        console.log(
-            "is this dude the sender???",
-            this.state.id == this.state.recipientId,
-            this.state.id,
-            this.state.recipientId
-        );
+        console.log("#", this.state.messages);
         return (
             <div id="profile-section">
-                <h3>
-                    {this.state.firstName} {this.state.lastName}
-                </h3>
                 <ProfilePic
                     firstName={this.state.firstName}
                     lastName={this.state.lastName}
                     profilePic={this.state.profilePic}
                 />
-
+                <h3>
+                    {this.state.firstName} {this.state.lastName}
+                </h3>
                 <p id="bio-text">
                     {this.state.bio
                         ? this.state.bio
@@ -131,6 +152,37 @@ export default class Profile extends React.Component {
                     friendshipUpdate={this.friendshipUpdate}
                     sender={this.state.id == this.state.recipientId}
                 />
+                {this.state.status == 2 && (
+                    <div className="wall">
+                        <p>Leave a message </p>
+                        <textarea
+                            onKeyDown={this.handleKeyDown}
+                            id="wall"
+                            type="text"
+                        />
+                        <button
+                            className="btn btn-wall"
+                            onClick={this.handleWallSubmit}
+                        >
+                            Post
+                        </button>
+                        <div id="wall-section">
+                            {this.state.messages &&
+                                this.state.messages.map((m, i) => {
+                                    return (
+                                        <div className="msg">
+                                            <ProfilePic
+                                                firstName={m.firstname}
+                                                lastName={m.lastname}
+                                                profilePic={m.profilepic}
+                                            />
+                                            <p>{m.msg}</p>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
