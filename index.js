@@ -11,10 +11,10 @@ const app = express();
 //------ SOCKET
 const server = require("http").Server(app);
 //server has to detect that first meet: handshake
-const io = require("socket.io")(server, { origins: "localhost:8080" });
-
+const origins =
+    `${process.env.PORT}:https://berlista.herokuapp.com/` || "localhost:8080";
+const io = require("socket.io")(server, { origins });
 //listing places from where you are accepting the connections
-// so socket io is listening for connections, so it would be your actual site
 
 //------ SETTING COOKIES
 var cookieSession = require("cookie-session");
@@ -440,7 +440,7 @@ app.get("*", function(req, res) {
 
 // here you sould tell that thre is another server you have created
 //not app.listen, but server.listen
-server.listen(8080, function() {
+server.listen(process.env.PORT || 8080, function() {
     console.log("I'm listening.");
 });
 
@@ -477,11 +477,9 @@ io.on("connection", function(socket) {
 
     //CHAT messages
 
-    console.log("Emit chatMessages:", messagesData);
     socket.emit("chatMessages", messagesData);
 
     socket.on("chatMessage", text => {
-        console.log("---< M : ", text);
         const {
             id,
             firstname: firstName,
@@ -496,13 +494,11 @@ io.on("connection", function(socket) {
             user: { id, firstName, lastName, profilePic }
         };
         //update the storage in server
-        console.log("-msg data:", msg);
         messagesData.push({
             timestamp,
             text,
             user: { id, firstName, lastName, profilePic }
         });
-        console.log("--- all chat", messagesData);
         io.sockets.emit("chatMessage", {
             msg
         });
@@ -533,7 +529,6 @@ io.on("connection", function(socket) {
         }
 
         onlineUsers = onlineUsers.filter(ou => ou.socketId !== socket.id);
-        // console.log("Removing the entry:", socket.id, onlineUsers);
         console.log(`socket with the id ${socket.id} is now disconnected`);
     });
 });
