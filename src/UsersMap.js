@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getAllUsersLocation } from "./actions";
-const secrets = require("./../googleMAPI.js");
+const googleMAPI = require("./../googleMAPI.js");
 
 import { Link } from "react-router-dom";
 
@@ -11,7 +11,6 @@ const defaultpic = "./profilepic.svg";
 import GoogleMapReact from "google-map-react";
 
 const Marker = ({ marker }) => {
-    // console.log("In custom marker: props", marker);
     return (
         <div className="pic-marker">
             <Link to={"/user/" + marker.id}>
@@ -38,10 +37,7 @@ class UsersMap extends React.Component {
 
     componentDidMount() {
         this.props.getAllUsersLocation();
-        console.log(this.state);
     }
-
-    // TO DO: GOOGLE MAP MARKERS NOT WORKING
 
     createMapMarkers() {
         if (!this.props.all) {
@@ -61,11 +57,11 @@ class UsersMap extends React.Component {
     }
 
     render() {
+        // TODO: render friends, wanabees and other users with different design
         // const { friends } = this.props;
         // const { wannabes } = this.props;
         // const { others } = this.props;
         const { all } = this.props;
-        // console.log("In render:", this.props.all);
 
         return (
             <div
@@ -77,7 +73,7 @@ class UsersMap extends React.Component {
             >
                 <GoogleMapReact
                     bootstrapURLKeys={{
-                        key: [secrets.googleAPI]
+                        key: [googleMAPI.googleAPI]
                     }}
                     defaultCenter={this.state.center}
                     defaultZoom={this.state.zoom}
@@ -89,9 +85,6 @@ class UsersMap extends React.Component {
         );
     }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(UsersMap);
-
 function mapStateToProps(state) {
     return {
         all: state.users,
@@ -112,3 +105,5 @@ function mapDispatchToProps(dispatch) {
         getAllUsersLocation: () => dispatch(getAllUsersLocation())
     };
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(UsersMap);

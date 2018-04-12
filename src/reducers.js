@@ -1,8 +1,6 @@
 export default function(state = {}, action) {
     if (action.type == "GET_FRIENDS_WANNABES") {
-        //action.type from actions
         state = Object.assign({}, state, {
-            //action.users from actions
             users: action.users
         });
     }
@@ -11,7 +9,6 @@ export default function(state = {}, action) {
         return {
             ...state,
             users: state.users.map(function(friend) {
-                //array, so mapping
                 if (friend.id == action.id) {
                     return {
                         ...friend,
@@ -26,13 +23,11 @@ export default function(state = {}, action) {
 
     // SOCKETS -  ONLINE
     if (action.type == "GET_VISITORS") {
-        //action.type from actions
         state = Object.assign({}, state, {
-            visitors: action.visitors //action.users from actions
+            visitors: action.visitors
         });
     }
     if (action.type == "USER_JOINED") {
-        //console.log("REDUCER: action.user", action.user);
         return {
             ...state,
             visitors: state.visitors.concat([action.user])
@@ -47,7 +42,6 @@ export default function(state = {}, action) {
     }
 
     // chat MESSAGES //getChatMessages
-
     if (action.type === "GET_MESSAGES") {
         state = Object.assign({}, state, {
             messages: action.messages
@@ -70,7 +64,7 @@ export default function(state = {}, action) {
     }
     if (action.type == "LOOKUP_COOR") {
         state = Object.assign({}, state, {
-            users: action.users //action.users from actions
+            users: action.users
         });
     }
 

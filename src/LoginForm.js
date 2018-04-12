@@ -34,7 +34,7 @@ export default class UsersForm extends React.Component {
         );
     }
     fieldsNotEmpty(name, value) {
-        console.log("Validating fields", name, value);
+        //console.log("Validating fields", name, value);
         let formValidation = this.state.formErrors;
         let emailValid = this.state.emailValid;
         let passwordValid = this.state.passwordValid;
@@ -75,7 +75,6 @@ export default class UsersForm extends React.Component {
         axios
             .post("/login", this.state)
             .then(results => {
-                console.log("Posting axios data in login", results.data);
                 if (results.data.success) {
                     location.replace("/");
                 } else {
@@ -94,7 +93,7 @@ export default class UsersForm extends React.Component {
         const email = this.state.email;
         const password = this.state.password;
         const msg = this.state.errorMsg;
-        console.log(msg);
+        // console.log(msg);
         return (
             <div className="login-form">
                 <form>

@@ -1,5 +1,4 @@
 import React from "react";
-// import axios from "axios";
 import axios from "./axios";
 import { Link } from "react-router-dom";
 import { FormErrors } from "./FormErrors";
@@ -41,14 +40,10 @@ export default class UsersForm extends React.Component {
         );
     }
     handlePlaceChange(address) {
-        console.log("clicked,", address);
-        // const address = e.target.value;
-        // console.log("clicked, got value", address);
         this.setState({ address });
     }
 
     fieldsNotEmpty(name, value) {
-        console.log("Validating fields", name, value);
         let formValidation = this.state.formErrors;
         let emailValid = this.state.emailValid;
         let passwordValid = this.state.passwordValid;
@@ -92,24 +87,18 @@ export default class UsersForm extends React.Component {
     }
 
     submitRegistration() {
-        console.log("Before submitting results, doing the geocoding");
-
         geocodeByAddress(this.state.address)
             .then(results => getLatLng(results[0]))
             .then(latLng => {
-                console.log("Success", latLng);
                 const { lat, lng } = latLng;
-                console.log("Got lat lon for DB", lat, lng);
                 this.setState({ lat, lng });
                 axios.post("/register", this.state).then(results => {
-                    console.log("Data from db", results.data);
                     if (results.data.success) {
                         location.replace("/");
                     } else {
                         this.setState({
                             errorMsg: results.data.errorMsg
                         });
-                        console.log("Got error, ", results.data.errorMsg);
                     }
                 });
             })
@@ -143,12 +132,8 @@ export default class UsersForm extends React.Component {
 
             autocompleteContainer: { backgroundColor: "green" },
             autocompleteItem: { color: "black" }
-            // autocompleteItemActive: { color: "blue" }
         };
-        // const renderSuggestion = ({ suggestion }) =>
-        //     ({ suggestion }.split(",")[0]);
 
-        // all up for Placename
         const firstname = this.state.firstname;
         const lastname = this.state.lastname;
         const email = this.state.email;

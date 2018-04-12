@@ -1,7 +1,6 @@
 import React from "react";
 import { HashRouter, Route } from "react-router-dom";
 
-//these go as props in the hashRouter
 import RegistrationForm from "./RegistrationForm";
 import LoginForm from "./LoginForm";
 

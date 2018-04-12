@@ -5,13 +5,11 @@ export function getFriendsAndNot() {
         console.log(data);
         return {
             type: "GET_FRIENDS_WANNABES",
-            users: data.users // var from json what I am returning
+            users: data.users
         };
     });
 }
 export function updateFriendship(id, status) {
-    // var accesed by index.js
-    // status= changing tostatus
     return axios
         .post("/updateFriendshipRequest", { id, status })
         .then(function() {
@@ -59,7 +57,6 @@ export function singleChatMessage(msg) {
         msg
     };
 }
-
 
 //EXTRA ------ search
 export function getUsersByString(searchString) {

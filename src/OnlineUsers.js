@@ -34,7 +34,6 @@ class OnlineUsers extends React.Component {
 }
 
 function mapStateToProps(state) {
-    console.log("State in map state props", state);
     return {
         friends:
             state.visitors &&

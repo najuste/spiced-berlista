@@ -21,14 +21,10 @@ export default class Profile extends React.Component {
         this.handleWallSubmit = this.handleWallSubmit.bind(this);
     }
 
-    //componentWillReceiveProps() {}
-
     componentDidMount() {
         axios
-            .get(`/get-user-info/${this.props.match.params.id}`) //UPDATE results with friendship status
+            .get(`/get-user-info/${this.props.match.params.id}`)
             .then(results => {
-                //console.log("resuts from axios", results.data.user);
-
                 if (results.data.user !== "same") {
                     const {
                         id,
@@ -52,7 +48,6 @@ export default class Profile extends React.Component {
                         recipientId: results.data.user.recipient_id || null
                     });
 
-                    console.log("Passing id:", this.props.match.params.id);
                     axios
                         .get(`/profile-wall/${this.props.match.params.id}`)
                         .then(res => {
@@ -61,20 +56,14 @@ export default class Profile extends React.Component {
                             this.setState({ messages });
                         });
                 } else {
-                    //if results.data.user !== "none" // show msg no such user
                     this.props.history.push("/");
                 }
             })
             .catch(err => console.log("Getting PROPS", err));
     }
 
-    //pass props or rather access the state?
     friendshipUpdate() {
-        //chosenStatus could be either 2 or 3 //
-        // console.log("inside friendship update,", this.state.status);
-        let status = this.state.status;
-
-        let id = this.state.id; //user_id
+        const { status, id } = this.state;
         //no-request || 3-rejected, 4-terminated, 5-cancelled
         if (status === 0 || status > 2) {
             this.friendshipUpdateFun("/sendFriendshipRequest", 1, id); //pending
@@ -107,10 +96,7 @@ export default class Profile extends React.Component {
         axios
             .post("/profile-wall", { receiver, msg })
             .then(results => {
-                // console.log("Data from axios:", results.data);
                 const { message } = results.data;
-                //update messages with message (!!!!)
-                //messages.push({ message });
             })
             .catch(err => console.log("write to wall err:", err));
     }
@@ -130,7 +116,6 @@ export default class Profile extends React.Component {
     }
 
     render() {
-        console.log("#", this.state.messages);
         return (
             <div id="profile-section">
                 <ProfilePic

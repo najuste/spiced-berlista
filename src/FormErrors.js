@@ -15,4 +15,3 @@ export const FormErrors = ({ formErrors }) => (
         })}
     </div>
 );
-//{fieldName} {formErrors[fieldName]}

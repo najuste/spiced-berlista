@@ -11,9 +11,8 @@ const app = express();
 //------ SOCKET
 const server = require("http").Server(app);
 //server has to detect that first meet: handshake
-const origins =
-    `${process.env.PORT}:https://berlista.herokuapp.com/` || "localhost:8080";
-const io = require("socket.io")(server, { origins });
+const allowedOrigins = "localhost:* https://berlista.herokuapp.com:*";
+const io = require("socket.io")(server, { origins: allowedOrigins });
 //listing places from where you are accepting the connections
 
 //------ SETTING COOKIES

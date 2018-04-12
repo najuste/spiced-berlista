@@ -23,7 +23,6 @@ export default class ProfilePicUpload extends React.Component {
         e.preventDefault();
         const formData = new FormData();
         formData.append("file", this.state.file);
-        console.log("Doing a post upload");
         axios
             .post("/upload", formData)
             .then(results => {
@@ -61,4 +60,3 @@ export default class ProfilePicUpload extends React.Component {
         );
     }
 }
-//{props.toggleUploader}

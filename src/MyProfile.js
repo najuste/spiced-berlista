@@ -17,11 +17,9 @@ export default class MyProfile extends React.Component {
 
     submitBio(e) {
         e.preventDefault();
-        console.log("Inside submit bio", this.state);
         axios
             .post("/bio", this.state)
             .then(results => {
-                console.log("Results from db update bio", results);
                 if (results.data.success) {
                     this.props.setBio(this.state.bio);
                     this.showBioToggle();
@@ -90,4 +88,3 @@ export default class MyProfile extends React.Component {
         );
     }
 }
-// FIXME: STILL NEEDS TO BE FIXED this.props.bio rendering

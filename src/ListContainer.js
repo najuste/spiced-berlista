@@ -51,7 +51,6 @@ const RenderButton = props => {
                 </button>
             );
         });
-    //return buttons;
     return buttons;
 };
 

@@ -48,8 +48,7 @@ class App extends React.Component {
     }
     componentDidMount() {
         axios.get("/user").then(results => {
-            console.log("Getting data from cookies(!)");
-
+            // console.log("Getting data from cookies(!)");
             this.setState({
                 id: results.data.user.id,
                 firstName: results.data.user.firstname,
@@ -95,7 +94,6 @@ class App extends React.Component {
                                         <Logo />
                                     </Link>
                                 </li>
-
                                 <li>
                                     <Link to="/map">Map</Link>
                                 </li>
@@ -105,7 +103,6 @@ class App extends React.Component {
                                 <li>
                                     <Link to="/friends">Friends</Link>
                                 </li>
-
                                 <li>
                                     <div id="search">
                                         <Link to="/search">
@@ -116,7 +113,6 @@ class App extends React.Component {
                                                 type="text"
                                                 placeholder="Look up"
                                             />
-
                                             <div
                                                 className="btn btn-search"
                                                 onClick={this.handleSubmit}
@@ -157,7 +153,6 @@ class App extends React.Component {
                         <Route path="/map" component={UsersMap} />
                     </div>
                 </BrowserRouter>
-
                 {this.state.showUploader && (
                     <ProfilePicUpload
                         setImage={this.setImage}

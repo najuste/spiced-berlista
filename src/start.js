@@ -8,9 +8,7 @@ import { createStore, applyMiddleware } from "redux";
 import reduxPromise from "redux-promise";
 import reducer from "./reducers";
 import { composeWithDevTools } from "redux-devtools-extension";
-// import * as io from "socket.io-client";
 import initSocket from "./socket.js";
-// const socket = io.connect();
 
 export const store = createStore(
     reducer,
@@ -23,10 +21,8 @@ let element;
 
 //logged out user - redirecting to Welcome /or Login
 if (location.pathname === "/welcome") {
-    //initSocket(); //otherwise we never make a connection
     element = <Welcome />;
 } else {
-    //logged in user
     element = (
         <Provider store={store}>
             <App />

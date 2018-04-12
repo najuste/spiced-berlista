@@ -15,7 +15,7 @@ export default class MakeFriendsButton extends React.Component {
                 text = "Make friend request";
                 break;
             case 1: //pending
-                this.props.sender //the profile I beriended is recipient, so I am sender
+                this.props.sender
                     ? (text = "Cancel friend request") //Sender can cancel
                     : (text = "Accept friend request"); //Recipient can either accept (or reject)
 
@@ -48,7 +48,6 @@ export default class MakeFriendsButton extends React.Component {
     }
 
     render() {
-        console.log("Props", this.props);
         return this.renderButton(this.props.status);
     }
 }
