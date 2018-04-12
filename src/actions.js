@@ -60,15 +60,6 @@ export function singleChatMessage(msg) {
     };
 }
 
-//
-// export function getAllVisitors(usersArray) { /// ?? pass the array?
-//     return axios.get(`/visitors`).then(function({ data }) {
-//         return {
-//             type: "GET_VISITORS",
-//             users: data.users
-//         };
-//     });
-// }
 
 //EXTRA ------ search
 export function getUsersByString(searchString) {

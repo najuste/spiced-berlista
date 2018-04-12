@@ -9,7 +9,8 @@ const s3 = require("./s3");
 const app = express();
 
 //------ SOCKET
-const server = require("http").Server(app); //server has to detect that first meet: handshake
+const server = require("http").Server(app);
+//server has to detect that first meet: handshake
 const io = require("socket.io")(server, { origins: "localhost:8080" });
 
 //listing places from where you are accepting the connections
@@ -81,7 +82,7 @@ var uploader = multer({
 
 app.post("/register", function(req, res) {
     console.log("Route /register");
-    const { firstname, lastname, lat, lng, email, password } = req.body;
+    const { firstname, lastname, email, password, lat, lng } = req.body;
     hashPassword(password)
         .then(hash => {
             return db
