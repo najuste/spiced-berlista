@@ -13,12 +13,14 @@ export default class UsersForm extends React.Component {
         this.state = {
             firstname: "",
             lastname: "",
+            location: "",
             email: "",
             password: "",
             formErrors: {
                 email: "",
                 password: ""
             },
+            locationValid: false,
             emailValid: false,
             passwordValid: false,
             formValid: false
@@ -39,40 +41,42 @@ export default class UsersForm extends React.Component {
             }
         );
     }
-    handlePlaceChange(address) {
-        this.setState({ address });
+    handlePlaceChange(location) {
+        this.setState({ location });
+        const { formErrors } = this.state;
+        let valid = location.length >= 2;
+        formErrors.location = valid ? "" : "pick a location";
     }
 
     fieldsNotEmpty(name, value) {
-        let formValidation = this.state.formErrors;
-        let emailValid = this.state.emailValid;
-        let passwordValid = this.state.passwordValid;
-
+        let { formErrors, emailValid, passwordValid } = this.state;
         switch (name) {
             case "firstname":
                 var valid = value.length >= 1;
-                formValidation.firstname = valid ? "" : "no name?";
+                formErrors.firstname = valid ? "" : "no name?";
                 break;
             case "lastname":
                 valid = value.length >= 1;
-                formValidation.lastname = valid ? "" : "no surname?";
+                formErrors.lastname = valid ? "" : "no surname?";
                 break;
             case "email":
                 emailValid = value.match(
                     /^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i
                 );
-                formValidation.email = emailValid ? "" : " invalid email";
+                formErrors.email = emailValid ? "" : " invalid email";
                 break;
             case "password":
                 passwordValid = value.length >= 6;
-                formValidation.password = passwordValid ? "" : "is too short";
+                formErrors.password = passwordValid
+                    ? ""
+                    : "password is too short";
                 break;
             default:
                 break;
         }
         this.setState(
             {
-                formErrors: formValidation,
+                formErrors: formErrors,
                 emailValid: emailValid,
                 passwordValid: passwordValid
             },
@@ -80,14 +84,26 @@ export default class UsersForm extends React.Component {
         );
     }
 
+    setLocationError() {
+        this.setState(prevState => ({
+            formErrors: {
+                ...prevState.formErrors,
+                location: "location not chosen"
+            }
+        }));
+    }
+
     validateForm() {
         this.setState({
-            formValid: this.state.emailValid && this.state.passwordValid
+            formValid:
+                this.state.emailValid &&
+                this.state.passwordValid &&
+                this.state.locationValid
         });
     }
 
     submitRegistration() {
-        geocodeByAddress(this.state.address)
+        geocodeByAddress(this.state.location)
             .then(results => getLatLng(results[0]))
             .then(latLng => {
                 const { lat, lng } = latLng;
@@ -109,9 +125,15 @@ export default class UsersForm extends React.Component {
 
     render() {
         const inputProps = {
-            value: this.state.address,
+            type: "search",
+            value: this.state.location,
             onChange: this.handlePlaceChange,
-            placeholder: "Where you thrive"
+            placeholder: "Where in Berlin?",
+            name: "location"
+        };
+        const onError = (status, clearSuggestions) => {
+            clearSuggestions();
+            this.setLocationError();
         };
         const options = {
             location: new google.maps.LatLng(52.52, 13.409),
@@ -122,22 +144,16 @@ export default class UsersForm extends React.Component {
         const myStyles = {
             root: { position: "relative" },
             input: {
-                width: "168px",
+                width: "100%",
                 padding: "0.2em",
                 margin: "auto",
                 fontSize: "1em",
                 fontFamily: "Arial",
                 backgroundColor: "rgba(250, 250, 250, 0.8)"
-            },
-
-            autocompleteContainer: { backgroundColor: "green" },
-            autocompleteItem: { color: "black" }
+            }
         };
 
-        const firstname = this.state.firstname;
-        const lastname = this.state.lastname;
-        const email = this.state.email;
-        const password = this.state.password;
+        const { firstname, lastname, location, email, password } = this.state;
         const msg = this.state.errorMsg;
         return (
             <div className="registration-form">
@@ -156,6 +172,7 @@ export default class UsersForm extends React.Component {
                     />
                     <PlacesAutocomplete
                         inputProps={inputProps}
+                        onError={onError}
                         options={options}
                         styles={myStyles}
                     />

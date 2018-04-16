@@ -234,7 +234,7 @@ app.get("/get-user-info/:id", function(req, res) {
     }
 });
 
-//--- uploading the user img
+//--- uploading user img
 //uploader.single("file") //file must be the same var as in FORM name(!)
 app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
     console.log("Route /upload");
@@ -242,8 +242,6 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
         return db
             .addProfilePic(req.file.filename, req.session.loggedin.id)
             .then(results => {
-                //returning all data for now
-                // console.log("Results from db", results.rows[0].profilepic);
                 req.session.loggedin.profilepic =
                     config.s3Url + results.rows[0].profilepic;
                 res.json({ image: config.s3Url + results.rows[0].profilepic });
@@ -252,7 +250,7 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
                 console.log(err);
             });
     } else {
-        console.log("Fail... upload");
+        console.log("Upload failed");
         res.json({
             success: false
         });
@@ -262,32 +260,27 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
 //--- updating user bio
 app.post("/bio", function(req, res) {
     if (req.body.bio) {
-        return db
-            .addBio(req.body.bio, req.session.loggedin.id)
-            .then(results => {
-                console.log("Results from addBio");
-                res.json({
-                    success: true
-                });
+        return db.addBio(req.body.bio, req.session.loggedin.id).then(() => {
+            res.json({
+                success: true
             });
+        });
     } else {
-        console.log("Fail... update");
+        console.log("Update failed");
         res.json({
             success: false
         });
     }
-
-    //update cookies!
 });
-// --- leting user sign on the handleWallSubmit
 
+// --- leting user sign on the handleWallSubmit
 app.post("/profile-wall", function(req, res) {
-    console.log("In route for writing to wall..", req.body);
+    // console.log("In route for writing to wall..", req.body);
     const { receiver, msg } = req.body;
     db
         .writeMsgToProfileWall(req.session.loggedin.id, receiver, msg)
         .then(results => {
-            console.log("res from post", results.rows);
+            //console.log("res from post", results.rows);
             let currentMessage = results.rows;
             let currentUser = req.session.loggedin;
             Object.assign(currentMessage, currentUser);
@@ -298,11 +291,11 @@ app.post("/profile-wall", function(req, res) {
 });
 
 app.get("/profile-wall/:id", function(req, res) {
-    console.log("In the route of profile-wall", req.params.id);
+    //console.log("In the route of profile-wall", req.params.id);
     db
         .getMsgsToProfileWall(req.params.id)
         .then(results => {
-            console.log("res from get", results.rows);
+            //console.log("res from get", results.rows);
             let messages = results.rows;
             messages.map(user => {
                 if (user.profilepic) {
@@ -317,7 +310,7 @@ app.get("/profile-wall/:id", function(req, res) {
 //---- FRIENDSHIP UPDATES
 
 app.post("/sendFriendshipRequest", function(req, res) {
-    console.log("In route", req.body.id, req.body.status);
+    //console.log("In route", req.body.id, req.body.status);
     return db
         .sendFriendshipRequest(
             req.session.loggedin.id,
@@ -325,18 +318,16 @@ app.post("/sendFriendshipRequest", function(req, res) {
             req.body.status
         )
         .then(results => {
-            console.log(results.rows);
             res.json({
                 status: 1,
                 senderId: results.rows[0].sender_id,
                 recipientId: results.rows[0].recipient_id
             });
         })
-        .catch(err => console.log("Error send friend req:", err));
+        .catch(err => console.log("Error in sending friend req:", err));
 });
 
 app.post("/updateFriendshipRequest", function(req, res) {
-    // console.log("In route", req.body.id, req.body.status);
     return db
         .updateFriendshipRequest(
             req.session.loggedin.id,
@@ -344,7 +335,6 @@ app.post("/updateFriendshipRequest", function(req, res) {
             req.body.status
         )
         .then(results => {
-            console.log("Updating friendship:", results.rows[0], "status");
             res.json({
                 status: results.rows[0].status,
                 senderId: results.rows[0].sender_id,
@@ -355,19 +345,15 @@ app.post("/updateFriendshipRequest", function(req, res) {
 });
 
 app.get("/friendsAndWannabes", function(req, res) {
-    console.log("In route get all friends and wanabees");
     return db
         .getfriendsAndWannabes(req.session.loggedin.id)
         .then(results => {
-            // console.log("Getting all friends and wannabes", results.rows);
             let users = results.rows;
             users.map(user => {
                 if (user.profilepic) {
                     user.profilepic = config.s3Url + user.profilepic;
                 }
-                // return user.profilepic
             });
-            // console.log("Got all friends and wannabes", users);
             res.json({ users });
         })
         .catch(err => console.log("Error get friends and wannabes req:", err));
@@ -375,8 +361,6 @@ app.get("/friendsAndWannabes", function(req, res) {
 
 // ---- SEARCH user
 app.get("/users/:str", function(req, res) {
-    //req.params.userString
-    // console.log("Inside users/string", req.params.str);
     return db
         .getUsersByString(req.params.str)
         .then(results => {
@@ -396,7 +380,6 @@ app.get("/userslocation", function(req, res) {
     return db
         .getUsersLocation()
         .then(results => {
-            console.log(results);
             let users = results.rows;
             users.map(user => {
                 if (user.profilepic) {
@@ -437,8 +420,7 @@ app.get("*", function(req, res) {
     res.sendFile(__dirname + "/index.html");
 });
 
-// here you sould tell that thre is another server you have created
-//not app.listen, but server.listen
+// here connecting with another server, thus not app.listen but server.listen
 server.listen(process.env.PORT || 8080, function() {
     console.log("I'm listening.");
 });

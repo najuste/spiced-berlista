@@ -152,6 +152,7 @@ main {
 #form {
     margin: 1em auto;
     padding: 2em;
+    width: 12em;
 }
 
 .formErrors > p {
@@ -162,6 +163,7 @@ main {
 }
 
 input {
+    width: 95%;
     display: block;
     padding: 0.2em;
     margin: 0.5em auto;
