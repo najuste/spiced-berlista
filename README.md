@@ -5,16 +5,20 @@ You can search people by name as well as by **location**.
 
 ## Technology
 
-The network platform is built with `React.js` & `Redux` at the front and `Node.js` & `Express.js` for the back.
-For registration asked password is encrypted with `bcrypt` (hashed and salted before storing). Asked location is geocoded using npm package `react-places-autocomplete` and that location is later used to visualize users on the map with `google-map-react`.
-
-When registered, user information with `csurf` is stored in cookies, which helps to recognise user and log in automatically.
-
-Chatroom & online users are managed with `socket.io`.
-
-Uploaded profile pictures are stored in a cloud of AWS, using `S3` service.
-
+The network is built with `React.js` & `Redux` at the front and `Node.js` & `Express.js` for the back.
 Data is stored in `Postgres` DB.
+
+In registration:
+
+* password is encrypted with `bcrypt` (hashed and salted before storing)
+* location is geocoded using npm package `react-places-autocomplete`
+
+When registered:
+
+* user information with `csurf` is stored in cookies, which helps to recognise user and log in automatically
+* users visualized on the map with `google-map-react`
+* chatroom & online users are managed with `socket.io`
+* user avatar is uploaded with `multer` and stored in a cloud of AWS, using `S3` service.
 
 ## App Functionality
 
