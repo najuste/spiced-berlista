@@ -48,7 +48,6 @@ class App extends React.Component {
     }
     componentDidMount() {
         axios.get("/user").then(results => {
-            // console.log("Getting data from cookies(!)");
             this.setState({
                 id: results.data.user.id,
                 firstName: results.data.user.firstname,
@@ -72,7 +71,6 @@ class App extends React.Component {
     }
     handleSubmit(e) {
         this.props.dispatch(getUsersByString(this.state.lookup));
-        //setting to STATE of redux (while the rest is not...)
     }
 
     handleKey(e) {

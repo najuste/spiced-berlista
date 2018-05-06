@@ -28,14 +28,12 @@ class ChatRoom extends React.Component {
 
     handleKey(e) {
         if (e.key === "Enter") {
-            console.log("Got enter");
             this.handleSubmit();
         }
     }
 
     render() {
         const { messages } = this.props;
-        console.log("messages", messages);
         return (
             <div id="chat-section">
                 {messages && (
@@ -93,7 +91,6 @@ class ChatRoom extends React.Component {
 }
 
 function mapStateToProps(state) {
-    console.log("state", state);
     return {
         messages:
             state.messages && state.messages.slice(state.messages.length - 10)

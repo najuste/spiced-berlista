@@ -134,9 +134,7 @@ app.post("/login", function(req, res) {
     return db
         .getDataByEmail(email)
         .then(results => {
-            console.log("results from getDataByEmail");
             if (!results.rows.length) {
-                console.log("The email has not been registered yet");
                 res.json({
                     success: false,
                     errorMsg:
@@ -160,8 +158,6 @@ app.post("/login", function(req, res) {
                                 cookies.profilepic =
                                     config.s3Url + cookies.profilepic;
                             }
-                            console.log("Logged in cookies:", cookies);
-
                             req.session = {
                                 loggedin: cookies
                             };
@@ -184,7 +180,6 @@ app.get("/user", function(req, res) {
     if (req.session.loggedin) {
         res.json({ user: req.session.loggedin });
     } else {
-        console.log("there is a problem, user is not logged in...");
         //testing purposes when cookies  are short term
         delete res.session.loggedin;
     }
@@ -193,26 +188,21 @@ app.get("/user", function(req, res) {
 //--- ---- from db getting data about user from both tables
 app.get("/get-user-info/:id", function(req, res) {
     let loggedin_id = req.session.loggedin.id;
-    // console.log("Session id", req.session.loggedin, req.params);
     if (loggedin_id == req.params.id) {
-        console.log("same user as requested profile");
         res.json({ user: "same" });
     } else {
         return db
             .getDataById(req.params.id)
             .then(results => {
                 if (results.rows.length) {
-                    // console.log("Got other user:", results.rows);
                     let user = results.rows[0];
                     delete user["password"];
                     if (user.profilepic) {
                         user.profilepic = config.s3Url + user.profilepic;
                     }
-                    // console.log("Friendship state with:", req.params.id);
                     return db
                         .getFriendshipStatus(loggedin_id, req.params.id)
                         .then(friendsResults => {
-                            console.log("Friendships:", friendsResults.rows);
                             if (friendsResults.rows.length) {
                                 let friendship = friendsResults.rows[0];
                                 //
@@ -237,7 +227,6 @@ app.get("/get-user-info/:id", function(req, res) {
 //--- uploading user img
 //uploader.single("file") //file must be the same var as in FORM name(!)
 app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
-    console.log("Route /upload");
     if (req.file) {
         return db
             .addProfilePic(req.file.filename, req.session.loggedin.id)
@@ -250,7 +239,6 @@ app.post("/upload", uploader.single("file"), s3.upload, (req, res) => {
                 console.log(err);
             });
     } else {
-        console.log("Upload failed");
         res.json({
             success: false
         });
@@ -266,7 +254,6 @@ app.post("/bio", function(req, res) {
             });
         });
     } else {
-        console.log("Update failed");
         res.json({
             success: false
         });
@@ -275,12 +262,10 @@ app.post("/bio", function(req, res) {
 
 // --- leting user sign on the handleWallSubmit
 app.post("/profile-wall", function(req, res) {
-    // console.log("In route for writing to wall..", req.body);
     const { receiver, msg } = req.body;
     db
         .writeMsgToProfileWall(req.session.loggedin.id, receiver, msg)
         .then(results => {
-            //console.log("res from post", results.rows);
             let currentMessage = results.rows;
             let currentUser = req.session.loggedin;
             Object.assign(currentMessage, currentUser);
@@ -291,11 +276,9 @@ app.post("/profile-wall", function(req, res) {
 });
 
 app.get("/profile-wall/:id", function(req, res) {
-    //console.log("In the route of profile-wall", req.params.id);
     db
         .getMsgsToProfileWall(req.params.id)
         .then(results => {
-            //console.log("res from get", results.rows);
             let messages = results.rows;
             messages.map(user => {
                 if (user.profilepic) {
@@ -310,7 +293,6 @@ app.get("/profile-wall/:id", function(req, res) {
 //---- FRIENDSHIP UPDATES
 
 app.post("/sendFriendshipRequest", function(req, res) {
-    //console.log("In route", req.body.id, req.body.status);
     return db
         .sendFriendshipRequest(
             req.session.loggedin.id,
@@ -422,7 +404,7 @@ app.get("*", function(req, res) {
 
 // here connecting with another server, thus not app.listen but server.listen
 server.listen(process.env.PORT || 8080, function() {
-    console.log("I'm listening.");
+    console.log("I'm listening...");
 });
 
 // --------------- SOCKETS ---------------
@@ -441,7 +423,7 @@ io.on("connection", function(socket) {
         userId,
         socketId: socket.id
     });
-    //there are sit, when users connects, (another tab), but we should not open the new socket
+    //there are situations, when users connect again, (another tab), but we should not open the new socket
     //So we need to check if it is in the list. //or push and then check if just once in the list and then emit
     const oneConnection = () =>
         onlineUsers.filter(ou => ou.userId == userId).length == 1
@@ -450,16 +432,11 @@ io.on("connection", function(socket) {
 
     if (oneConnection()) {
         socket.broadcast.emit("userJoined", {
-            user: socket.request.session.loggedin //deconstruct rather hre before sending
+            user: socket.request.session.loggedin
         });
-    } else {
-        // console.log(`Same user just opened another tab`);
     }
-
     //CHAT messages
-
     socket.emit("chatMessages", messagesData);
-
     socket.on("chatMessage", text => {
         const {
             id,
@@ -474,7 +451,6 @@ io.on("connection", function(socket) {
             text,
             user: { id, firstName, lastName, profilePic }
         };
-        //update the storage in server
         messagesData.push({
             timestamp,
             text,
@@ -485,7 +461,6 @@ io.on("connection", function(socket) {
         });
     });
 
-    //getting data from db about connected users
     let onlineUsersIds = onlineUsers.map(ou => ou.userId);
     db
         .getUsersOnline(onlineUsersIds)

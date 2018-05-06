@@ -44,8 +44,9 @@ export default class UsersForm extends React.Component {
     handlePlaceChange(location) {
         this.setState({ location });
         const { formErrors } = this.state;
-        let valid = location.length >= 2;
-        formErrors.location = valid ? "" : "pick a location";
+        let locationValid = location.length >= 3;
+        formErrors.location = locationValid ? "" : "pick a location";
+        locationValid && this.setState({ locationValid });
     }
 
     fieldsNotEmpty(name, value) {
@@ -94,12 +95,14 @@ export default class UsersForm extends React.Component {
     }
 
     validateForm() {
+        console.log("state to set", this.state);
         this.setState({
             formValid:
                 this.state.emailValid &&
                 this.state.passwordValid &&
                 this.state.locationValid
         });
+        console.log("form valid ?", this.state);
     }
 
     submitRegistration() {

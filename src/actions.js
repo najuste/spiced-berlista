@@ -2,7 +2,6 @@ import axios from "./axios";
 
 export function getFriendsAndNot() {
     return axios.get("/friendsAndWannabes").then(function({ data }) {
-        console.log(data);
         return {
             type: "GET_FRIENDS_WANNABES",
             users: data.users
@@ -51,7 +50,6 @@ export function getChatMessages(msgs) {
 }
 
 export function singleChatMessage(msg) {
-    console.log("in actions: singleChatMessage:", msg);
     return {
         type: "CHAT_MESSAGE",
         msg

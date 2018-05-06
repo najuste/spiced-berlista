@@ -33,7 +33,7 @@ const ClusterMarkerStyle = styled.div`
     width: ${props => (props.length === 2 ? "45px" : "80px")};
 `;
 const ClusterMarker = ({ marker }) => {
-    console.log("Cluster Marker:", marker);
+    //console.log("Cluster Marker:", marker);
     return (
         <ClusterMarkerStyle length={this.props.all}>
             {this.props.all.map(marker => (
@@ -64,10 +64,10 @@ class UsersMap extends React.Component {
             clusters: []
         };
         this.createMapMarkers = this.createMapMarkers.bind(this);
-        this.createMapClusters = this.createMapClusters.bind(this);
-        this.createClusters = this.createClusters.bind(this);
-        this.handleMapChange = this.handleMapChange.bind(this);
-        this.getClusters = this.getClusters.bind(this);
+        //this.createMapClusters = this.createMapClusters.bind(this);
+        //this.createClusters = this.createClusters.bind(this);
+        //this.handleMapChange = this.handleMapChange.bind(this);
+        //this.getClusters = this.getClusters.bind(this);
     }
 
     componentDidMount() {
@@ -90,78 +90,84 @@ class UsersMap extends React.Component {
         });
         return GoogleMapMarkers;
     }
-    //functions only for the CLUSTERS
-    createMapClusters() {
-        console.log("In the function createMapClusters");
-        if (!this.props.all) {
-            return null;
-        }
 
-        const GoogleMapMarkers = this.props.all.map(marker => {
-            console.log("Marker:", marker);
-            if (marker.numPoints === 1) {
-                return (
-                    <Marker
-                        key={marker.id}
-                        lat={marker.points[0].lat}
-                        lng={marker.points[0].lng}
-                    />
-                );
-            }
+    //-----------functions only for the CLUSTERS
+    // createMapClusters() {
+    //     //console.log("In the function createMapClusters");
+    //     if (!this.props.all) {
+    //         return null;
+    //     }
+    //
+    //     const GoogleMapMarkers = this.props.all.map(marker => {
+    //         //console.log("Marker:", marker);
+    //         if (marker.numPoints === 1) {
+    //             return (
+    //                 <Marker
+    //                     key={marker.id}
+    //                     lat={marker.points[0].lat}
+    //                     lng={marker.points[0].lng}
+    //                 />
+    //             );
+    //         }
+    //
+    //         return (
+    //             <ClusterMarker
+    //                 key={marker.id}
+    //                 lat={marker.lat}
+    //                 lng={marker.lng}
+    //                 points={marker.points}
+    //             />
+    //         );
+    //     });
+    //     return GoogleMapMarkers;
+    // }
+    //
+    // getClusters() {
+    //     console.log("Getting clusters from this.props.all", this.props.all);
+    //     const clusters = supercluster(this.props.all, {
+    //         minZoom: 0,
+    //         maxZoom: 16,
+    //         radius: 60
+    //     });
+    //
+    //     return clusters(this.state.mapOptions);
+    // }
+    //
+    // createClusters() {
+    //     //console.log("inside create clusters");
+    //     this.setState({
+    //         clusters: this.state.mapOptions.bounds
+    //             ? this.getClusters().map(({ wx, wy, numPoints, points }) => ({
+    //                   lat: wy,
+    //                   lng: wx,
+    //                   numPoints,
+    //                   id: `${numPoints}_${points[0].id}`,
+    //                   points
+    //               }))
+    //             : []
+    //     });
+    //     console.log("State was updated:", this.state);
+    // }
+    //
+    //
+    //
+    // handleMapChange({ center, zoom, bounds }) {
+    //     console.log("handleMapChange", this.state);
+    //     this.setState(
+    //         {
+    //             mapOptions: {
+    //                 center,
+    //                 zoom,
+    //                 bounds
+    //             }
+    //         },
+    //         () => {
+    //             this.createClusters(this.props.all);
+    //         }
+    //     );
+    // }
 
-            return (
-                <ClusterMarker
-                    key={marker.id}
-                    lat={marker.lat}
-                    lng={marker.lng}
-                    points={marker.points}
-                />
-            );
-        });
-        return GoogleMapMarkers;
-    }
-
-    getClusters() {
-        console.log("Ggetting clusters from this.props.all", this.props.all);
-        const clusters = supercluster(this.props.all, {
-            minZoom: 0,
-            maxZoom: 16,
-            radius: 60
-        });
-
-        return clusters(this.state.mapOptions);
-    }
-
-    createClusters() {
-        console.log("inside create clusters");
-        this.setState({
-            clusters: this.state.mapOptions.bounds
-                ? this.getClusters().map(({ wx, wy, numPoints, points }) => ({
-                      lat: wy,
-                      lng: wx,
-                      numPoints,
-                      id: `${numPoints}_${points[0].id}`,
-                      points
-                  }))
-                : []
-        });
-        console.log("State was updated:", this.state);
-    }
-    handleMapChange({ center, zoom, bounds }) {
-        console.log("handleMapChange", this.state);
-        this.setState(
-            {
-                mapOptions: {
-                    center,
-                    zoom,
-                    bounds
-                }
-            },
-            () => {
-                this.createClusters(this.props.all);
-            }
-        );
-    }
+    //-----------
 
     render() {
         // TODO: render friends, wanabees and other users with different design
@@ -184,7 +190,6 @@ class UsersMap extends React.Component {
                     }}
                     defaultCenter={MAP.defaultCenter}
                     defaultZoom={MAP.defaultZoom}
-                    onChange={this.handleMapChange}
                 >
                     {this.createMapMarkers()}
                 </GoogleMapReact>
@@ -193,22 +198,23 @@ class UsersMap extends React.Component {
     }
 }
 //within google map react
+// in options: onChange={this.handleMapChange}, then
 //{this.createMapMarkers()} // option with markers only
 // still under implementation
 //{this.createMapClusters()} /// for clusters
 
 function mapStateToProps(state) {
     return {
-        all: state.users,
-        friends:
-            state.users && state.users.filter(friend => friend.status == 2),
-        wannabes:
-            state.users && state.users.filter(friend => friend.status == 1),
-        others:
-            state.users &&
-            state.users.filter(
-                friend => friend.status != 1 && friend.status != 2
-            )
+        all: state.users
+        // friends:
+        //     state.users && state.users.filter(friend => friend.status == 2),
+        // wannabes:
+        //     state.users && state.users.filter(friend => friend.status == 1),
+        // others:
+        //     state.users &&
+        //     state.users.filter(
+        //         friend => friend.status != 1 && friend.status != 2
+        //     )
     };
 }
 
