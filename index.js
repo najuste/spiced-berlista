@@ -435,8 +435,10 @@ io.on("connection", function(socket) {
             user: socket.request.session.loggedin
         });
     }
-    //CHAT messages
+
+    //--- handle CHAT messages
     socket.emit("chatMessages", messagesData);
+
     socket.on("chatMessage", text => {
         const {
             id,
@@ -459,6 +461,12 @@ io.on("connection", function(socket) {
         io.sockets.emit("chatMessage", {
             msg
         });
+    });
+
+    // --- handle CHAT typing event
+    socket.on("typing", function() {
+        let name = socket.request.session.loggedin.firstname;
+        io.sockets.emit("typing", { name });
     });
 
     let onlineUsersIds = onlineUsers.map(ou => ou.userId);

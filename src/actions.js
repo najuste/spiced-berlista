@@ -56,6 +56,13 @@ export function singleChatMessage(msg) {
     };
 }
 
+export function typing(name) {
+    return {
+        type: "TYPING_TEMP",
+        name
+    };
+}
+
 //EXTRA ------ search
 export function getUsersByString(searchString) {
     return axios.get(`/users/${searchString}`).then(function({ data }) {

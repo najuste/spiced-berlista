@@ -5,7 +5,8 @@ import {
     userJoined,
     userLeft,
     getChatMessages,
-    singleChatMessage
+    singleChatMessage,
+    typing
 } from "./actions";
 
 let socket;
@@ -20,6 +21,10 @@ export default function initSocket() {
             store.dispatch(getChatMessages(msgs));
         });
     }
+    socket.on("typing", data => {
+        console.log(data.name, " is typing.. ");
+        store.dispatch(typing(data.name));
+    });
 
     socket.on("chatMessage", data => {
         store.dispatch(singleChatMessage(data.msg));
@@ -39,4 +44,8 @@ export default function initSocket() {
 
 export function emitChatMessage(message) {
     socket.emit("chatMessage", message);
+}
+
+export function emitTyping() {
+    socket.emit("typing");
 }

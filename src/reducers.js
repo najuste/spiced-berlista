@@ -52,7 +52,14 @@ export default function(state = {}, action) {
         state = Object.assign({}, state, {
             messages: state.messages
                 ? [...state.messages, action.msg]
-                : [action.msg]
+                : [action.msg],
+            typing: null
+        });
+    }
+
+    if (action.type === "TYPING_TEMP") {
+        state = Object.assign({}, state, {
+            typing: action.name
         });
     }
 

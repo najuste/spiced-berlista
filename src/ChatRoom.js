@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getChatMessages } from "./actions";
-import { emitChatMessage } from "./socket";
+import { emitChatMessage, emitTyping } from "./socket";
 import { Link } from "react-router-dom";
 
 import ProfilePic from "./ProfilePic";
@@ -24,16 +24,19 @@ class ChatRoom extends React.Component {
         let msg = el.value;
         emitChatMessage(msg);
         el.value = "";
+        emitNoTyping();
     }
 
     handleKey(e) {
         if (e.key === "Enter") {
             this.handleSubmit();
+        } else {
+            emitTyping();
         }
     }
 
     render() {
-        const { messages } = this.props;
+        const { messages, typing } = this.props;
         return (
             <div id="chat-section">
                 {messages && (
@@ -44,7 +47,7 @@ class ChatRoom extends React.Component {
                         {messages.length != 0 &&
                             messages.map(msg => {
                                 return (
-                                    <div key={msg.user.id} className="msg">
+                                    <div key={msg.timestamp} className="msg">
                                         <Link to={"/user/" + msg.user.id}>
                                             <ProfilePic
                                                 firstName={msg.user.firstName}
@@ -68,6 +71,9 @@ class ChatRoom extends React.Component {
                                     </div>
                                 );
                             })}
+                        <div id="feedback">
+                            {typing && <em> ...{typing} is typing...</em>}
+                        </div>
                     </div>
                 )}
                 <p>Leave your message</p>
@@ -93,7 +99,8 @@ class ChatRoom extends React.Component {
 function mapStateToProps(state) {
     return {
         messages:
-            state.messages && state.messages.slice(state.messages.length - 10)
+            state.messages && state.messages.slice(state.messages.length - 10),
+        typing: state.typing
         // users:
         //     state.users && state.users.filter(friend => friend.status == 1)
     };
