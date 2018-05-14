@@ -23,15 +23,24 @@ When registered:
 ## App Functionality
 
 * Registration/login (_only if not logged in_).
+
+![alt text](https://github.com/najuste/spiced-berlista/blob/master/gifs/berlista_login.gif "Login")
+
 * Default profile image can be changed by choosing a photo from computer, as well as user can edit his description.
-* User by search string or on the map.
+* User by search for users by name or on the map.
 * User can chat with other users who are online in the chatroom.
+
+![alt text](https://github.com/najuste/spiced-berlista/blob/master/gifs/berlista_navigation.gif "Navigation")
+
 * User can be befriended, if another user accepts. There are possibilities to cancel the sent request, deny the requested friendship or also unfriend the user.
+
+![alt text](https://github.com/najuste/spiced-berlista/blob/master/gifs/berlista_friends.gif "Friendships")
+
 * User can leave a message on the other users wall, only when the are friends.
 
 ## To launch
 
-_should have node installed_
+_should have node installed_.
 To install dependencies: `npm install`.
 
 ### Using this repo in development
